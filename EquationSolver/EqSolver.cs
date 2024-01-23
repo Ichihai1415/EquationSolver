@@ -50,18 +50,21 @@ namespace EquationSolver
 
             int count = coefficients.Length;
             var eqStB = new StringBuilder();
-            for (int i = 0; i < count; i++)
+            for (int i = 0; i < count; i++)//(count-i-1)次の項
             {
                 int degree = count - i - 1;//次数
-                double coefficient = coefficients[i];
-                if (coefficient == 0)
+                double coefficient = coefficients[i];//x^(count-i-1)の係数
+                if (coefficient == 0)//項なし
                     continue;
                 if (coefficient > 0 && eqStB.Length != 0)
                     eqStB.Append("+");
-                if (coefficient != 1 && coefficient != -1)
-                    eqStB.Append(coefficient);
                 if (degree == 0)//定数項
+                {
+                    eqStB.Append(coefficient);
                     continue;
+                }
+                if (coefficient != 1 && coefficient != -1)//1xとならないように
+                    eqStB.Append(coefficient);
                 else if (degree == 1)//xの項
                     eqStB.Append("x");
                 else
