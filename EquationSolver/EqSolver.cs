@@ -136,16 +136,15 @@ namespace EquationSolver
         /// </summary>
         /// <param name="n">n個から選ぶ</param>
         /// <param name="r">r個選ぶ</param>
-        /// <returns></returns>
+        /// <returns>組み合わせの総数</returns>
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
-
-        public static int NCR(int n, int r)
+        public static long NCR(int n, int r)
         {
             if (n < 1)
                 throw new ArgumentException("引数が不正です。", nameof(n));
             if (r < 1 || n < r)
                 throw new ArgumentException("引数が不正です。", nameof(r));
-            int a = 1, b = 1;
+            long a = 1, b = 1;
             for (int i = 0; i < r; i++)
             {
                 a *= n - i;
@@ -157,18 +156,18 @@ namespace EquationSolver
         /// <summary>
         /// 複素数配列を文字列([1]:1.2+3.4i\n[1]:1.2+3.4i等)に変換します。
         /// </summary>
-        /// <param name="complexArray"></param>
-        /// <returns></returns>
-        public static string ComplexArray2String(Complex[] complexArray)
+        /// <param name="input">複素数配列</param>
+        /// <returns>変換された文字列</returns>
+        public static string ComplexArray2String(Complex[] input)
         {
-            return string.Join(Environment.NewLine, complexArray.Select((x, i) => $"[{i}]:{Complex2String(x)}"));
+            return string.Join(Environment.NewLine, input.Select((x, i) => $"[{i}]:{Complex2String(x)}"));
         }
 
         /// <summary>
         /// 複素数を文字列(1.2,1.2+3.4i,1.2-3.4i等)に変換します。
         /// </summary>
-        /// <param name="input"></param>
-        /// <returns></returns>
+        /// <param name="input">複素数</param>
+        /// <returns>変換された文字列</returns>
         public static string Complex2String(Complex input)
         {
             if (input.Imaginary == 0)
@@ -183,15 +182,15 @@ namespace EquationSolver
         /// 二次方程式の解を解の公式より求めます。
         /// </summary>
         /// <remarks>x={-b+-sqrt(b^2-4ac)}/(2a)</remarks>
-        /// <param name="a1">x^2の係数</param>
-        /// <param name="a2">xの係数</param>
-        /// <param name="a3">定数項</param>
+        /// <param name="c1">x^2の係数</param>
+        /// <param name="c2">xの係数</param>
+        /// <param name="c3">定数項</param>
         /// <returns>解の複素数配列</returns>
-        public static Complex[] Equat2_Formula(double a1, double a2 = 0, double a3 = 0)
+        public static Complex[] Equat2_Formula(double c1, double c2 = 0, double c3 = 0)
         {
-            var root = Complex.Sqrt(a2 * a2 - 4 * a1 * a3);//ルート部分
-            var x1 = (-a2 + root) / (2 * a1);
-            var x2 = (-a2 - root) / (2 * a1);
+            var root = Complex.Sqrt(c2 * c2 - 4 * c1 * c3);//ルート部分
+            var x1 = (-c2 + root) / (2 * c1);
+            var x2 = (-c2 - root) / (2 * c1);
             return new Complex[] { x1, x2 };
         }
     }
