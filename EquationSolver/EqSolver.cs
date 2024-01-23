@@ -8,6 +8,9 @@ namespace EquationSolver
 {
     public static class EquationSolver
     {
+        public static double sqrt3 = Math.Sqrt(3);
+        public static double oneThird = 1d / 3d;
+
         /// <summary>
         /// 解から方程式の係数の配列を生成します。
         /// </summary>
@@ -65,7 +68,7 @@ namespace EquationSolver
                 }
                 if (coefficient != 1 && coefficient != -1)//1xとならないように
                     eqStB.Append(coefficient);
-                else if (degree == 1)//xの項
+                if (degree == 1)//xの項
                     eqStB.Append("x");
                 else
                 {
@@ -154,44 +157,115 @@ namespace EquationSolver
         }
 
         /// <summary>
-        /// 複素数配列を文字列([1]:1.2+3.4i\n[1]:1.2+3.4i等)に変換します。
+        /// 複素数配列を文字列(1.2+3.4i,1.2+3.4i等)に変換します。
         /// </summary>
         /// <param name="input">複素数配列</param>
+        /// <param name="digits">丸める桁数 -1で無効(既定)</param>
         /// <returns>変換された文字列</returns>
-        public static string ComplexArray2String(Complex[] input)
+        public static string ComplexArray2StringSimple(Complex[] input, int digits = -1)
         {
-            return string.Join(Environment.NewLine, input.Select((x, i) => $"[{i}]:{Complex2String(x)}"));
+            return string.Join(",", input.Select((x, i) => Complex2String(x, digits)));
+        }
+
+        /// <summary>
+        /// 複素数配列を文字列(1.2+3.4i\n:1.2+3.4i等)に変換します。
+        /// </summary>
+        /// <param name="input">複素数配列</param>
+        /// <param name="digits">丸める桁数 -1で無効(既定)</param>
+        /// <returns>変換された文字列</returns>
+        public static string ComplexArray2String(Complex[] input, int digits = -1)
+        {
+            return string.Join("\n", input.Select((x, i) => $"[{i}]:{Complex2String(x, digits)}"));
         }
 
         /// <summary>
         /// 複素数を文字列(1.2,1.2+3.4i,1.2-3.4i等)に変換します。
         /// </summary>
         /// <param name="input">複素数</param>
+        /// <param name="digits">丸める桁数 -1で無効(既定)</param>
         /// <returns>変換された文字列</returns>
-        public static string Complex2String(Complex input)
+        public static string Complex2String(Complex input, int digits = -1)
         {
-            if (input.Imaginary == 0)
-                return input.Real.ToString();
-            else if (input.Imaginary > 0)
-                return input.Real.ToString() + "+" + input.Imaginary.ToString();
+            double r = digits == -1 ? input.Real : Math.Round(input.Real, digits, MidpointRounding.AwayFromZero);
+            double i = digits == -1 ? input.Imaginary : Math.Round(input.Imaginary, digits, MidpointRounding.AwayFromZero);
+            if (i == 0)
+                return r.ToString();
+            else if (i > 0)
+                return r.ToString() + "+" + i.ToString();
             else
-                return input.Real.ToString() + input.Imaginary.ToString();
+                return r.ToString() + i.ToString();
         }
 
         /// <summary>
         /// 二次方程式の解を解の公式より求めます。
         /// </summary>
         /// <remarks>x={-b+-sqrt(b^2-4ac)}/(2a)</remarks>
-        /// <param name="c1">x^2の係数</param>
-        /// <param name="c2">xの係数</param>
-        /// <param name="c3">定数項</param>
+        /// <param name="a">x^2の係数</param>
+        /// <param name="b">xの係数</param>
+        /// <param name="c">定数項</param>
         /// <returns>解の複素数配列</returns>
-        public static Complex[] Equat2_Formula(double c1, double c2 = 0, double c3 = 0)
+        /// <exception cref="ArgumentException">引数が不正な場合</exception>
+        public static Complex[] Equat2_Formula(double a, double b = 0, double c = 0)
         {
-            var root = Complex.Sqrt(c2 * c2 - 4 * c1 * c3);//ルート部分
-            var x1 = (-c2 + root) / (2 * c1);
-            var x2 = (-c2 - root) / (2 * c1);
+            if (a == 0)
+                throw new ArgumentException("引数が不正です。", nameof(a), new Exception("最高次数の係数が0になっています。"));
+            var tmp1 = Complex.Sqrt(b * b - 4 * a * c);
+
+            var x1 = (-b + tmp1) / (2 * a);
+            var x2 = (-b - tmp1) / (2 * a);
             return new Complex[] { x1, x2 };
         }
+
+        /// <summary>
+        /// 三次方程式の解を解の公式より求めます。
+        /// </summary>
+        /// <remarks>ミスがある可能性があります。</remarks>
+        /// <param name="coefficients">係数の配列</param>
+        /// <returns>解の複素数配列</returns>
+        /// <exception cref="ArgumentException">引数が不正な場合</exception>
+        public static Complex[] Equat3_Formula(double[] coefficients)
+        {
+            if (coefficients.Length != 4)
+                throw new ArgumentException("引数の個数が不正です。", nameof(coefficients));
+            return Equat3_Formula(coefficients[0], coefficients[1], coefficients[2], coefficients[3]);
+        }
+
+        /// <summary>
+        /// 三次方程式の解を解の公式より求めます。
+        /// </summary>
+        /// <remarks>ミスがある可能性があります。</remarks>
+        /// <param name="a">x^3の係数</param>
+        /// <param name="b">x^2の係数</param>
+        /// <param name="c">xの係数</param>
+        /// <param name="d">定数項</param>
+        /// <returns>解の複素数配列</returns>
+        /// <exception cref="ArgumentException">引数が不正な場合</exception>
+        public static Complex[] Equat3_Formula(double a, double b = 0, double c = 0, double d = 0)
+        {
+            if (a == 0)
+                throw new ArgumentException("引数が不正です。", nameof(a), new Exception("最高次数の係数が0になっています。"));
+            var tmp1 = (-2 * b * b * b + 9 * a * b * c - 27 * a * a * d) / (54 * a * a * a);
+            var tmp2 = Complex.Sqrt(3 * (27 * a * a * d * d - 18 * a * b * c * d + 4 * a * c * c * c + 4 * b * b * b * d - b * b * c * c)) / (18 * a * a);
+            var tmp12p = Complex.Pow(tmp1 + tmp2, oneThird);//3乗根=1/3乗
+            var tmp12m = Complex.Pow(tmp1 - tmp2, oneThird);
+            var tmp3 = b / (3 * a);
+            var tmp4 = new Complex(-1, sqrt3) / 2;
+            var tmp5 = new Complex(-1, -sqrt3) / 2;
+
+            var x1 = tmp12p + tmp12m - tmp3;
+            var x2 = tmp4 * tmp12p + tmp5 * tmp12m - tmp3;
+            var x3 = tmp5 * tmp12p + tmp4 * tmp12m - tmp3;
+            Console.WriteLine("----------計算途中情報開始----------");
+            Console.WriteLine($"tmp1:{tmp1}");
+            Console.WriteLine($"tmp2:{tmp2}");
+            Console.WriteLine($"tmp12p:{tmp12p}");
+            Console.WriteLine($"tmp12m:{tmp12m}");
+            Console.WriteLine($"tmp3:{tmp3}");
+            Console.WriteLine($"tmp4:{tmp4}");
+            Console.WriteLine($"tmp5:{tmp5}");
+            Console.WriteLine("----------計算途中情報終了----------");
+            return new Complex[] { x1, x2, x3 };
+        }
+
     }
 }
