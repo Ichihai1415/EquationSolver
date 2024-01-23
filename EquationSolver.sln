@@ -3,9 +3,11 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio Version 17
 VisualStudioVersion = 17.8.34511.84
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EquationSolver", "EquationSolver\EquationSolver.csproj", "{B8A1B5F0-124C-48D7-95E8-96A8A4089562}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EquationSolver", "EquationSolver\EquationSolver.csproj", "{B8A1B5F0-124C-48D7-95E8-96A8A4089562}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EquationSolver.test", "EquationSolver.test\EquationSolver.test.csproj", "{F519BF7E-E4FA-427A-8BD4-BA410D57ABBE}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EquationSolver.test", "EquationSolver.test\EquationSolver.test.csproj", "{F519BF7E-E4FA-427A-8BD4-BA410D57ABBE}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EquationSolver.test.NETFramework", "EquationSolver.test.NETFramework\EquationSolver.test.NETFramework.csproj", "{8C509BC0-0421-4F77-AA5C-BB25DF5433EC}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +23,10 @@ Global
 		{F519BF7E-E4FA-427A-8BD4-BA410D57ABBE}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{F519BF7E-E4FA-427A-8BD4-BA410D57ABBE}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{F519BF7E-E4FA-427A-8BD4-BA410D57ABBE}.Release|Any CPU.Build.0 = Release|Any CPU
+		{8C509BC0-0421-4F77-AA5C-BB25DF5433EC}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{8C509BC0-0421-4F77-AA5C-BB25DF5433EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{8C509BC0-0421-4F77-AA5C-BB25DF5433EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{8C509BC0-0421-4F77-AA5C-BB25DF5433EC}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

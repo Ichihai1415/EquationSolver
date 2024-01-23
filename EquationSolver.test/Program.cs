@@ -20,6 +20,14 @@ namespace EquationSolver.test
 
             //Console.WriteLine(ComplexArray2String(Equat2_Formula(1, 2, -15)));
 
+            Console.WriteLine(Equation2String([1]));
+            Console.WriteLine(Equation2String([2]));
+            Console.WriteLine(Equation2String([1, 2]));
+            Console.WriteLine(Equation2String([1, 2, 3]));
+            Console.WriteLine(Equation2String([1, 2, 3, 4]));
+            Console.WriteLine(Equation2String([1, 2, 3, 4, 5]));
+            Console.WriteLine(Equation2String([1, 2, 3, 4, 5, 6]));
+            Console.WriteLine(Equation2String([1, 1, 1, 1, 1, 1]));
 
 
         }
