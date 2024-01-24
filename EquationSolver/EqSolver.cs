@@ -18,7 +18,7 @@ namespace EquationSolver
         public static readonly double oneThird = 1d / 3d;
 
         /// <summary>
-        /// 解から方程式の係数の配列を生成します。
+        /// 解から方程式の係数の配列を生成します。虚数解には対応してません。
         /// </summary>
         /// <param name="roots">解の配列(重解でもその分追加)</param>
         /// <returns>方程式の係数の配列(次数が大きい順)</returns>
@@ -67,13 +67,13 @@ namespace EquationSolver
                     continue;
                 if (coefficient > 0 && eqStB.Length != 0)
                     eqStB.Append("+");
-                else if (coefficient == -1)
-                    eqStB.Append("-");
                 if (degree == 0)//定数項
                 {
                     eqStB.Append(coefficient);
                     continue;
                 }
+                else if (coefficient == -1)
+                    eqStB.Append("-");
                 if (coefficient != 1 && coefficient != -1)//1xとならないように
                     eqStB.Append(coefficient);
                 if (degree == 1)//xの項
@@ -145,6 +145,7 @@ namespace EquationSolver
         /// <summary>
         /// nCr(組み合わせの総数)を計算します。
         /// </summary>
+        /// <remarks>nPrがlong.MaxValueを超える場合計算不可です。</remarks>
         /// <param name="n">n個から選ぶ</param>
         /// <param name="r">r個選ぶ</param>
         /// <returns>組み合わせの総数</returns>
@@ -165,7 +166,7 @@ namespace EquationSolver
         }
 
         /// <summary>
-        /// 複素数配列を文字列(1.2+3.4i,1.2+3.4i等)に変換します。
+        /// 複素数配列を単純文字列(1.2+3.4i,1.2+3.4i等)に変換します。
         /// </summary>
         /// <param name="input">複素数配列</param>
         /// <param name="digits">丸める桁数 -1で無効(既定)</param>
@@ -176,7 +177,7 @@ namespace EquationSolver
         }
 
         /// <summary>
-        /// 複素数配列を文字列([0]:1.2+3.4i\n[1]:1.2+3.4i等)に変換します。
+        /// 複素数配列を改行あり文字列([0]:1.2+3.4i\n[1]:1.2+3.4i等)に変換します。
         /// </summary>
         /// <param name="input">複素数配列</param>
         /// <param name="digits">丸める桁数 -1で無効(既定)</param>
@@ -194,14 +195,14 @@ namespace EquationSolver
         /// <returns>変換された文字列</returns>
         public static string Complex2String(Complex input, int digits = -1)
         {
-            double r = digits == -1 ? input.Real : Math.Round(input.Real, digits, MidpointRounding.AwayFromZero);
-            double i = digits == -1 ? input.Imaginary : Math.Round(input.Imaginary, digits, MidpointRounding.AwayFromZero);
+            var r = digits == -1 ? input.Real : Math.Round(input.Real, digits, MidpointRounding.AwayFromZero);
+            var i = digits == -1 ? input.Imaginary : Math.Round(input.Imaginary, digits, MidpointRounding.AwayFromZero);
             if (i == 0)
                 return r.ToString();
             else if (i > 0)
-                return r.ToString() + "+" + i.ToString();
+                return r.ToString() + "+" + i.ToString() + "i";
             else
-                return r.ToString() + i.ToString();
+                return r.ToString() + i.ToString() + "i";
         }
 
         /// <summary>
@@ -209,9 +210,10 @@ namespace EquationSolver
         /// </summary>
         /// <remarks>x={-b+-sqrt(b^2-4ac)}/(2a)</remarks>
         /// <param name="coefficients">係数の配列</param>
+        /// <param name="outputCalInfo">計算途中情報を出力するか</param>
         /// <returns>解の複素数配列</returns>
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
-        public static Complex[] Equat2_Formula(double[] coefficients)
+        public static Complex[] Equat2_Formula(double[] coefficients, bool outputCalInfo = false)
         {
             if (coefficients.Length != 3)
                 throw new ArgumentException("引数の個数が不正です。", nameof(coefficients));
@@ -220,9 +222,12 @@ namespace EquationSolver
                 throw new ArgumentException("引数が不正です。", nameof(a), new Exception("最高次数の係数が0になっています。"));
             var tmp1 = Complex.Pow(b * b - 4 * a * c, 0.5);
 
-            Console.WriteLine("----------計算途中情報開始----------");
-            Console.WriteLine($"tmp1:{tmp1}");
-            Console.WriteLine("----------計算途中情報終了----------");
+            if (outputCalInfo)
+            {
+                Console.WriteLine("----------計算途中情報開始----------");
+                Console.WriteLine($"tmp1:{tmp1}");
+                Console.WriteLine("----------計算途中情報終了----------");
+            }
             var x1 = (-b + tmp1) / (2 * a);
             var x2 = (-b - tmp1) / (2 * a);
             return new Complex[] { x1, x2 };
@@ -233,9 +238,10 @@ namespace EquationSolver
         /// </summary>
         /// <remarks>ミスがある可能性があります。</remarks>
         /// <param name="coefficients">係数の配列</param>
+        /// <param name="outputCalInfo">計算途中情報を出力するか</param>
         /// <returns>解の複素数配列</returns>
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
-        public static Complex[] Equat3_Formula(double[] coefficients)
+        public static Complex[] Equat3_Formula(double[] coefficients, bool outputCalInfo = false)
         {
             if (coefficients.Length != 4)
                 throw new ArgumentException("引数の個数が不正です。", nameof(coefficients));
@@ -251,15 +257,18 @@ namespace EquationSolver
             var tmp4 = new Complex(-1, sqrt3) / 2;
             var tmp5 = new Complex(-1, -sqrt3) / 2;
 
-            Console.WriteLine("----------計算途中情報開始----------");
-            Console.WriteLine($"tmp1:{tmp1}");
-            Console.WriteLine($"tmp2:{tmp2}");
-            Console.WriteLine($"tmp12p:{tmp12p}");
-            Console.WriteLine($"tmp12m:{tmp12m}");
-            Console.WriteLine($"tmp3:{tmp3}");
-            Console.WriteLine($"tmp4:{tmp4}");
-            Console.WriteLine($"tmp5:{tmp5}");
-            Console.WriteLine("----------計算途中情報終了----------");
+            if (outputCalInfo)
+            {
+                Console.WriteLine("----------計算途中情報開始----------");
+                Console.WriteLine($"tmp1:{tmp1}");
+                Console.WriteLine($"tmp2:{tmp2}");
+                Console.WriteLine($"tmp12p:{tmp12p}");
+                Console.WriteLine($"tmp12m:{tmp12m}");
+                Console.WriteLine($"tmp3:{tmp3}");
+                Console.WriteLine($"tmp4:{tmp4}");
+                Console.WriteLine($"tmp5:{tmp5}");
+                Console.WriteLine("----------計算途中情報終了----------");
+            }
             var x1 = tmp12p + tmp12m - tmp3;
             var x2 = tmp4 * tmp12p + tmp5 * tmp12m - tmp3;
             var x3 = tmp5 * tmp12p + tmp4 * tmp12m - tmp3;
@@ -271,9 +280,10 @@ namespace EquationSolver
         /// </summary>
         /// <remarks>ミスがある可能性があります。</remarks>
         /// <param name="coefficients">係数の配列</param>
+        /// <param name="outputCalInfo">計算途中情報を出力するか</param>
         /// <returns>解の複素数配列</returns>
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
-        public static Complex[] Equat4_Formula(double[] coefficients)
+        public static Complex[] Equat4_Formula(double[] coefficients, bool outputCalInfo = false)
         {
             Console.WriteLine("[警告]未完成です。");
             if (coefficients.Length != 5)
@@ -294,19 +304,23 @@ namespace EquationSolver
             var tmp1212p = tmp12p + tmp12m;
             var tmp01212p_sq = Complex.Pow(tmp0 + tmp1212p, 0.5);
             var tmp01212p_msq = Complex.Pow(tmp0 + tmp1212p, -0.5);
-            var tmp_unknown = 1d;//2gの部分(未確認)
+            var tmp3 = b / (4 * a);
+            var tmp_unknown = 1*0;//2gの部分(未確認)//0にすると1,2,3,4で合う
 
-            Console.WriteLine("----------計算途中情報開始----------");
-            Console.WriteLine($"tmp0:{tmp0}");
-            Console.WriteLine($"tmp1:{tmp1}");
-            Console.WriteLine($"tmp2:{tmp2}");
-            Console.WriteLine($"tmp12p:{tmp12p}");
-            Console.WriteLine($"tmp12m:{tmp12m}");
-            Console.WriteLine($"tmp1212p:{tmp1212p}");
-            Console.WriteLine($"tmp1212p_sq:{tmp01212p_sq}");
-            Console.WriteLine($"tmp1212p_msq:{tmp01212p_msq}");
-            Console.WriteLine("----------計算途中情報終了----------");
-            var x1 = 0.5 * (-tmp01212p_sq + Complex.Pow(tmp0 * 2 - tmp1212p + tmp_unknown * tmp01212p_msq, 0.5));
+            if (outputCalInfo)
+            {
+                Console.WriteLine("----------計算途中情報開始----------");
+                Console.WriteLine($"tmp0:{tmp0}");
+                Console.WriteLine($"tmp1:{tmp1}");
+                Console.WriteLine($"tmp2:{tmp2}");
+                Console.WriteLine($"tmp12p:{tmp12p}");
+                Console.WriteLine($"tmp12m:{tmp12m}");
+                Console.WriteLine($"tmp1212p:{tmp1212p}");
+                Console.WriteLine($"tmp1212p_sq:{tmp01212p_sq}");
+                Console.WriteLine($"tmp1212p_msq:{tmp01212p_msq}");
+                Console.WriteLine("----------計算途中情報終了----------");
+            }
+            var x1 = 0.5 * (-tmp01212p_sq + Complex.Pow(tmp0 * 2 - tmp1212p + tmp_unknown * tmp01212p_msq, 0.5));// - tmp3?
             var x2 = 0.5 * (-tmp01212p_sq - Complex.Pow(tmp0 * 2 - tmp1212p + tmp_unknown * tmp01212p_msq, 0.5));
             var x3 = 0.5 * (tmp01212p_sq + Complex.Pow(tmp0 * 2 - tmp1212p - tmp_unknown * tmp01212p_msq, 0.5));
             var x4 = 0.5 * (tmp01212p_sq - Complex.Pow(tmp0 * 2 - tmp1212p - tmp_unknown * tmp01212p_msq, 0.5));

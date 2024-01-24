@@ -29,11 +29,11 @@ namespace EquationSolver.test.NETFramework
                     var creSolSt = DateTime.Now;
                     var rootSolved = new System.Numerics.Complex[0];
                     if (rootInput.Length == 2)
-                        rootSolved = Equat2_Formula(equation);
+                        rootSolved = Equat2_Formula(equation,true);
                     else if (rootInput.Length == 3)
-                        rootSolved = Equat3_Formula(equation);
+                        rootSolved = Equat3_Formula(equation, true);
                     else if (rootInput.Length == 4)
-                        rootSolved = Equat4_Formula(equation);
+                        rootSolved = Equat4_Formula(equation, true);
                     else
                         throw new Exception($"値が不正です。{rootInput.Length}次方程式は対応していません。");
                     var creSolEn = DateTime.Now;

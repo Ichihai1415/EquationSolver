@@ -31,19 +31,71 @@ namespace EquationSolver.test
 
             //Console.WriteLine(Equation2String());
             //Console.WriteLine(ComplexArray2String());
-            /*
-            var a = CreateEquation([1, 2, 3]);
+
+            var a = CreateEquation([1, 2, 2]);
             Console.WriteLine(Equation2String(a));
-            Console.WriteLine(ComplexArray2String(Equat3_Formula(a)));
-            */
-            //var a = CreateEquation([1, 2, 3, 4]);
-            var a = CreateEquation([0, 0, 0, 1]);
-            foreach (var i in a)
+            Console.WriteLine(ComplexArray2String(Equat3_Formula(a, true)));
+
+            //var b = CreateEquation([1, 2, 3, 4]);
+
+            var b = CreateEquation([1, 2, 3, 4]);
+            foreach (var i in b)
             {
                 Console.WriteLine(i);
             }
-            Console.WriteLine(Equation2String(a));
-            Console.WriteLine(ComplexArray2String(Equat4_Formula(a)));
+            Console.WriteLine(Equation2String(b));
+            Console.WriteLine(ComplexArray2String(Equat4_Formula(b)));
+
+
+            //return;
+
+
+            int m = 10;
+            for (int i = 1; i <= m; i++)
+                for (int j = 0; j <= m; j++)
+                    for (int k = 0; k <= m; k++)
+                    {
+                        Console.Write($"{i},{j},{k} -> ");
+                        var equa = CreateEquation([i, j, k]);
+                        Console.Write(Equation2String(equa));
+                        Console.Write(" -> ");
+                        Console.Write(ComplexArray2StringSimple(Equat3_Formula(equa), 10));
+                        Console.WriteLine();
+                        /*
+                        Console.WriteLine();
+                        Console.Write($"{i},{j},{k} -> ");
+                        var equa = CreateEquation([i, j, k]);
+                        Console.Write(Equation2String(equa));
+                        Console.Write(" -> ");
+                        Console.WriteLine();
+                        Console.Write(ComplexArray2StringSimple(Equat3_Formula(equa, true), 10));
+                        Console.WriteLine();
+                        */
+                    }
+            /*
+            for (int i = 1; i <= m; i++)
+                for (int j = 0; j <= m; j++)
+                    for (int k = 0; k <= m; k++)
+                        for (int l = 0; l <= m; l++)
+                        {
+                            Console.Write($"{i},{j},{k},{l} -> ");
+                            var equa = CreateEquation([i, j, k, l]);
+                            Console.Write(Equation2String(equa));
+                            Console.Write(" -> ");
+                            Console.Write(ComplexArray2StringSimple(Equat4_Formula(equa), 10));
+                            Console.WriteLine();
+                            /*
+                            Console.WriteLine();
+                            Console.Write($"{i},{j},{k} -> ");
+                            var equa = CreateEquation([i, j, k]);
+                            Console.Write(Equation2String(equa));
+                            Console.Write(" -> ");
+                            Console.WriteLine();
+                            Console.Write(ComplexArray2StringSimple(Equat3_Formula(equa, true), 10));
+                            Console.WriteLine();
+                            */
+            //}
+
         }
     }
 }
