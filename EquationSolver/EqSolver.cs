@@ -305,7 +305,7 @@ namespace EquationSolver
             var tmp01212p_sq = Complex.Pow(tmp0 + tmp1212p, 0.5);
             var tmp01212p_msq = Complex.Pow(tmp0 + tmp1212p, -0.5);
             var tmp3 = b / (4 * a);
-            var tmp_unknown = 1*0;//2gの部分(未確認)//0にすると1,2,3,4で合う
+            var tmp_unknown = 1 * 0;//2gの部分(未確認)//0にすると1,2,3,4で合う
 
             if (outputCalInfo)
             {
@@ -326,5 +326,45 @@ namespace EquationSolver
             var x4 = 0.5 * (tmp01212p_sq - Complex.Pow(tmp0 * 2 - tmp1212p - tmp_unknown * tmp01212p_msq, 0.5));
             return new Complex[] { x1, x2, x3, x4 };
         }
+
+        /// <summary>
+        /// 小数を分数に変換します。
+        /// </summary>
+        /// <param name="input">変換する小数</param>
+        /// <param name="maxDenominator">分母の最大</param>
+        /// <param name="toleranceLevel">計算した分数での小数と変換する小数の差の許容範囲</param>
+        /// <returns>分数([分母,分子,判定誤差])、失敗した場合[-1]</returns>
+        public static int[] Decimal2Fraction(double input, int maxDenominator = 99999, double toleranceLevel = 0.00001)
+        {
+            return Decimal2Fraction(input, out _, maxDenominator, toleranceLevel);
+        }
+
+        /// <summary>
+        /// 小数を分数に変換します。
+        /// </summary>
+        /// <param name="input">変換する小数</param>
+        /// <param name="error">判定時の誤差(out)失敗時NaN</param>
+        /// <param name="maxDenominator">分母の最大</param>
+        /// <param name="toleranceLevel">計算した分数での小数と変換する小数の差の許容範囲</param>
+        /// <returns>分数([分母,分子,判定誤差])、失敗した場合[-1]</returns>
+        public static int[] Decimal2Fraction(double input, out double error, int maxDenominator = 99999, double toleranceLevel = 0.00001)
+        {
+            for (int d = 2; d <= maxDenominator; d++)//input=1.6,d=2の例を以下に
+            {
+                var inpAbs = Math.Abs(input);
+                var nearD = Math.Max(Math.Round(inpAbs / (1d / d)), 1);//inputを割ると余りが0に近い数字(0以上)//1.6/0.5=>3.2=>3
+                //Console.WriteLine($"{input}:{d}->{nearD} {Math.Abs(inpAbs - (nearD / d))}");//動作確認用
+                error = inpAbs - (nearD / d);
+                if (Math.Abs(error) <= toleranceLevel)//1.6-3/2=>0.1=>false
+                    if (input < 0)
+                        return new int[] { -(int)nearD, d };
+                    else
+                        return new int[] { (int)nearD, d };
+            }
+            error = double.NaN;
+            return new int[] { -1 };
+            //使用例:Console.WriteLine(string.Join("/", Decimal2Fraction(1.33333333)).Replace("-1/-1", "(変換失敗)"));
+        }
+
     }
 }

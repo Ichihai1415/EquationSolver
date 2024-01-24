@@ -50,17 +50,19 @@ namespace EquationSolver.test
             //return;
 
 
-            int m = 10;
+            int m = 5;
             for (int i = 1; i <= m; i++)
                 for (int j = 0; j <= m; j++)
                     for (int k = 0; k <= m; k++)
                     {
+
                         Console.Write($"{i},{j},{k} -> ");
                         var equa = CreateEquation([i, j, k]);
                         Console.Write(Equation2String(equa));
                         Console.Write(" -> ");
                         Console.Write(ComplexArray2StringSimple(Equat3_Formula(equa), 10));
                         Console.WriteLine();
+
                         /*
                         Console.WriteLine();
                         Console.Write($"{i},{j},{k} -> ");
@@ -72,6 +74,20 @@ namespace EquationSolver.test
                         Console.WriteLine();
                         */
                     }
+            Console.Write("0.5773502692 -> " + string.Join("/", Decimal2Fraction(0.5773502692, out double error, int.MaxValue, 1e-15)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine($" error:{error}");
+            Console.Write("0.2886751346 -> " + string.Join("/", Decimal2Fraction(0.2886751346, out error, int.MaxValue, 1e-15)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine($" error:{error}");
+            Console.Write("1.1547005384 -> " + string.Join("/", Decimal2Fraction(1.1547005384, out error, int.MaxValue, 1e-15)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine($" error:{error}");
+            Console.Write("1.7320508076 -> " + string.Join("/", Decimal2Fraction(1.7320508076, out error, int.MaxValue, 1e-15)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine($" error:{error}");
+            Console.Write("2.3094010768 -> " + string.Join("/", Decimal2Fraction(2.3094010768, out error, int.MaxValue, 1e-15)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine($" error:{error}");
+            Console.Write("0.8660254038 -> " + string.Join("/", Decimal2Fraction(0.8660254038, out error, int.MaxValue, 1e-15)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine($" error:{error}");
+
+
             /*
             for (int i = 1; i <= m; i++)
                 for (int j = 0; j <= m; j++)
@@ -95,7 +111,15 @@ namespace EquationSolver.test
                             Console.WriteLine();
                             */
             //}
-
+            /*
+            Console.WriteLine(string.Join("/", Decimal2Fraction(0.1)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine(string.Join("/", Decimal2Fraction(0.333)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine(string.Join("/", Decimal2Fraction(0.6666666)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine(string.Join("/", Decimal2Fraction(1.333333)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine(string.Join("/", Decimal2Fraction(0.725)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine(string.Join("/", Decimal2Fraction(1.13461538)).Replace("-1/-1", "(変換失敗)"));
+            Console.WriteLine(string.Join("/", Decimal2Fraction(119.903614)).Replace("-1/-1", "(変換失敗)"));
+            */
         }
     }
 }
