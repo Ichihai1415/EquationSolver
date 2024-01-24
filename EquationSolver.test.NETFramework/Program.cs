@@ -12,7 +12,7 @@ namespace EquationSolver.test.NETFramework
             while (true)
                 try
                 {
-                    Console.WriteLine("解をコンマ(,)区切りで3つ入力してください。");
+                    Console.WriteLine("解をコンマ(,)区切りで入力してください。");
                     var rootInput = Console.ReadLine().Split(',').Select(x => double.Parse(x)).ToArray();
 
                     var creEqSt = DateTime.Now;
@@ -27,7 +27,15 @@ namespace EquationSolver.test.NETFramework
                         rDigits = 10;
 
                     var creSolSt = DateTime.Now;
-                    var rootSolved = Equat3_Formula(equation);
+                    var rootSolved = new System.Numerics.Complex[0];
+                    if (rootInput.Length == 2)
+                        rootSolved = Equat2_Formula(equation);
+                    else if (rootInput.Length == 3)
+                        rootSolved = Equat3_Formula(equation);
+                    else if (rootInput.Length == 4)
+                        rootSolved = Equat4_Formula(equation);
+                    else
+                        throw new Exception($"値が不正です。{rootInput.Length}次方程式は対応していません。");
                     var creSolEn = DateTime.Now;
 
                     Console.WriteLine($"式を解くと、 {ComplexArray2StringSimple(rootSolved, rDigits).Replace("\n", " ")} になります。(計算の都合上誤差が発生します)\n");

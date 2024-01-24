@@ -8,8 +8,14 @@ namespace EquationSolver
 {
     public static class EquationSolver
     {
-        public static double sqrt3 = Math.Sqrt(3);
-        public static double oneThird = 1d / 3d;
+        /// <summary>
+        /// ルート3
+        /// </summary>
+        public static readonly double sqrt3 = Math.Sqrt(3);
+        /// <summary>
+        /// 三分の一
+        /// </summary>
+        public static readonly double oneThird = 1d / 3d;
 
         /// <summary>
         /// 解から方程式の係数の配列を生成します。
@@ -61,6 +67,8 @@ namespace EquationSolver
                     continue;
                 if (coefficient > 0 && eqStB.Length != 0)
                     eqStB.Append("+");
+                else if (coefficient == -1)
+                    eqStB.Append("-");
                 if (degree == 0)//定数項
                 {
                     eqStB.Append(coefficient);
@@ -168,7 +176,7 @@ namespace EquationSolver
         }
 
         /// <summary>
-        /// 複素数配列を文字列(1.2+3.4i\n:1.2+3.4i等)に変換します。
+        /// 複素数配列を文字列([0]:1.2+3.4i\n[1]:1.2+3.4i等)に変換します。
         /// </summary>
         /// <param name="input">複素数配列</param>
         /// <param name="digits">丸める桁数 -1で無効(既定)</param>
@@ -200,24 +208,28 @@ namespace EquationSolver
         /// 二次方程式の解を解の公式より求めます。
         /// </summary>
         /// <remarks>x={-b+-sqrt(b^2-4ac)}/(2a)</remarks>
-        /// <param name="a">x^2の係数</param>
-        /// <param name="b">xの係数</param>
-        /// <param name="c">定数項</param>
+        /// <param name="coefficients">係数の配列</param>
         /// <returns>解の複素数配列</returns>
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
-        public static Complex[] Equat2_Formula(double a, double b = 0, double c = 0)
+        public static Complex[] Equat2_Formula(double[] coefficients)
         {
+            if (coefficients.Length != 3)
+                throw new ArgumentException("引数の個数が不正です。", nameof(coefficients));
+            double a = coefficients[0], b = coefficients[1], c = coefficients[2];
             if (a == 0)
                 throw new ArgumentException("引数が不正です。", nameof(a), new Exception("最高次数の係数が0になっています。"));
-            var tmp1 = Complex.Sqrt(b * b - 4 * a * c);
+            var tmp1 = Complex.Pow(b * b - 4 * a * c, 0.5);
 
+            Console.WriteLine("----------計算途中情報開始----------");
+            Console.WriteLine($"tmp1:{tmp1}");
+            Console.WriteLine("----------計算途中情報終了----------");
             var x1 = (-b + tmp1) / (2 * a);
             var x2 = (-b - tmp1) / (2 * a);
             return new Complex[] { x1, x2 };
         }
 
         /// <summary>
-        /// 三次方程式の解を解の公式より求めます。
+        /// 三次方程式の解を解の公式(独自算出)より求めます。
         /// </summary>
         /// <remarks>ミスがある可能性があります。</remarks>
         /// <param name="coefficients">係数の配列</param>
@@ -227,34 +239,18 @@ namespace EquationSolver
         {
             if (coefficients.Length != 4)
                 throw new ArgumentException("引数の個数が不正です。", nameof(coefficients));
-            return Equat3_Formula(coefficients[0], coefficients[1], coefficients[2], coefficients[3]);
-        }
-
-        /// <summary>
-        /// 三次方程式の解を解の公式より求めます。
-        /// </summary>
-        /// <remarks>ミスがある可能性があります。</remarks>
-        /// <param name="a">x^3の係数</param>
-        /// <param name="b">x^2の係数</param>
-        /// <param name="c">xの係数</param>
-        /// <param name="d">定数項</param>
-        /// <returns>解の複素数配列</returns>
-        /// <exception cref="ArgumentException">引数が不正な場合</exception>
-        public static Complex[] Equat3_Formula(double a, double b = 0, double c = 0, double d = 0)
-        {
+            double a = coefficients[0], b = coefficients[1], c = coefficients[2], d = coefficients[3];
             if (a == 0)
                 throw new ArgumentException("引数が不正です。", nameof(a), new Exception("最高次数の係数が0になっています。"));
+
             var tmp1 = (-2 * b * b * b + 9 * a * b * c - 27 * a * a * d) / (54 * a * a * a);
-            var tmp2 = Complex.Sqrt(3 * (27 * a * a * d * d - 18 * a * b * c * d + 4 * a * c * c * c + 4 * b * b * b * d - b * b * c * c)) / (18 * a * a);
-            var tmp12p = Complex.Pow(tmp1 + tmp2, oneThird);//3乗根=1/3乗
+            var tmp2 = Complex.Pow(3 * (27 * a * a * d * d - 18 * a * b * c * d + 4 * a * c * c * c + 4 * b * b * b * d - b * b * c * c), 0.5) / (18 * a * a);
+            var tmp12p = Complex.Pow(tmp1 + tmp2, oneThird);
             var tmp12m = Complex.Pow(tmp1 - tmp2, oneThird);
             var tmp3 = b / (3 * a);
             var tmp4 = new Complex(-1, sqrt3) / 2;
             var tmp5 = new Complex(-1, -sqrt3) / 2;
 
-            var x1 = tmp12p + tmp12m - tmp3;
-            var x2 = tmp4 * tmp12p + tmp5 * tmp12m - tmp3;
-            var x3 = tmp5 * tmp12p + tmp4 * tmp12m - tmp3;
             Console.WriteLine("----------計算途中情報開始----------");
             Console.WriteLine($"tmp1:{tmp1}");
             Console.WriteLine($"tmp2:{tmp2}");
@@ -264,8 +260,57 @@ namespace EquationSolver
             Console.WriteLine($"tmp4:{tmp4}");
             Console.WriteLine($"tmp5:{tmp5}");
             Console.WriteLine("----------計算途中情報終了----------");
+            var x1 = tmp12p + tmp12m - tmp3;
+            var x2 = tmp4 * tmp12p + tmp5 * tmp12m - tmp3;
+            var x3 = tmp5 * tmp12p + tmp4 * tmp12m - tmp3;
             return new Complex[] { x1, x2, x3 };
         }
 
+        /// <summary>
+        /// 四次方程式の解を解の公式(独自算出)より求めます。
+        /// </summary>
+        /// <remarks>ミスがある可能性があります。</remarks>
+        /// <param name="coefficients">係数の配列</param>
+        /// <returns>解の複素数配列</returns>
+        /// <exception cref="ArgumentException">引数が不正な場合</exception>
+        public static Complex[] Equat4_Formula(double[] coefficients)
+        {
+            Console.WriteLine("[警告]未完成です。");
+            if (coefficients.Length != 5)
+                throw new ArgumentException("引数の個数が不正です。", nameof(coefficients));
+            double a = coefficients[0], b = coefficients[1], c = coefficients[2], d = coefficients[3], e = coefficients[4];
+            if (a == 0)
+                throw new ArgumentException("引数が不正です。", nameof(a), new Exception("最高次数の係数が0になっています。"));
+
+            var tmp0 = (3 * b * b - 8 * a * c) / (12 * a * a);//12a^2で割る方
+            var tmp1 = (2 * c * c * c - 72 * a * c * e + 27 * b * b * e + 27 * a * d * d - 9 * b * c * d) / (54 * a * a * a);
+            var tmp2 = Complex.Sqrt(3 * (
+                -256 * a * a * a * e * e * e + 192 * a * a * b * d * e * e + 128 * a * a * c * c * e * e - 144 * a * b * b * c * e * e
+                + 27 * b * b * b * b * e * e - 144 * a * a * c * d * d * e + 6 * a * b * b * d * d * e + 80 * a * b * c * c * d * e
+                - 18 * b * b * b * c * d * e - 16 * a * c * c * c * c * e + 4 * b * b * c * c * c * e + 27 * a * a * d * d * d * d
+                - 18 * a * b * c * d * d * d + 4 * b * b * b * d * d * d + 4 * a * c * c * c * d * d - b * b * c * c * d * d)) / (18 * a * a * a);
+            var tmp12p = Complex.Pow(tmp1 + tmp2, oneThird);
+            var tmp12m = Complex.Pow(tmp1 - tmp2, oneThird);
+            var tmp1212p = tmp12p + tmp12m;
+            var tmp01212p_sq = Complex.Pow(tmp0 + tmp1212p, 0.5);
+            var tmp01212p_msq = Complex.Pow(tmp0 + tmp1212p, -0.5);
+            var tmp_unknown = 1d;//2gの部分(未確認)
+
+            Console.WriteLine("----------計算途中情報開始----------");
+            Console.WriteLine($"tmp0:{tmp0}");
+            Console.WriteLine($"tmp1:{tmp1}");
+            Console.WriteLine($"tmp2:{tmp2}");
+            Console.WriteLine($"tmp12p:{tmp12p}");
+            Console.WriteLine($"tmp12m:{tmp12m}");
+            Console.WriteLine($"tmp1212p:{tmp1212p}");
+            Console.WriteLine($"tmp1212p_sq:{tmp01212p_sq}");
+            Console.WriteLine($"tmp1212p_msq:{tmp01212p_msq}");
+            Console.WriteLine("----------計算途中情報終了----------");
+            var x1 = 0.5 * (-tmp01212p_sq + Complex.Pow(tmp0 * 2 - tmp1212p + tmp_unknown * tmp01212p_msq, 0.5));
+            var x2 = 0.5 * (-tmp01212p_sq - Complex.Pow(tmp0 * 2 - tmp1212p + tmp_unknown * tmp01212p_msq, 0.5));
+            var x3 = 0.5 * (tmp01212p_sq + Complex.Pow(tmp0 * 2 - tmp1212p - tmp_unknown * tmp01212p_msq, 0.5));
+            var x4 = 0.5 * (tmp01212p_sq - Complex.Pow(tmp0 * 2 - tmp1212p - tmp_unknown * tmp01212p_msq, 0.5));
+            return new Complex[] { x1, x2, x3, x4 };
+        }
     }
 }

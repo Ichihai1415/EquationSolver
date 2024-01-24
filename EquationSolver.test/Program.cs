@@ -31,12 +31,19 @@ namespace EquationSolver.test
 
             //Console.WriteLine(Equation2String());
             //Console.WriteLine(ComplexArray2String());
-
+            /*
             var a = CreateEquation([1, 2, 3]);
             Console.WriteLine(Equation2String(a));
             Console.WriteLine(ComplexArray2String(Equat3_Formula(a)));
-
-
+            */
+            //var a = CreateEquation([1, 2, 3, 4]);
+            var a = CreateEquation([0, 0, 0, 1]);
+            foreach (var i in a)
+            {
+                Console.WriteLine(i);
+            }
+            Console.WriteLine(Equation2String(a));
+            Console.WriteLine(ComplexArray2String(Equat4_Formula(a)));
         }
     }
 }
