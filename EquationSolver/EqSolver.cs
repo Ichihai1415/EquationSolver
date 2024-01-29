@@ -197,6 +197,10 @@ namespace EquationSolver
         {
             var r = digits == -1 ? input.Real : Math.Round(input.Real, digits, MidpointRounding.AwayFromZero);
             var i = digits == -1 ? input.Imaginary : Math.Round(input.Imaginary, digits, MidpointRounding.AwayFromZero);
+            if (r == -0)
+                r = 0;
+            if (i == -0)
+                i = 0;
             if (i == 0)
                 return r.ToString();
             else if (i > 0)
@@ -285,7 +289,6 @@ namespace EquationSolver
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
         public static Complex[] Equat4_Formula(double[] coefficients, bool outputCalInfo = false)
         {
-            Console.WriteLine("[警告]未完成です。");
             if (coefficients.Length != 5)
                 throw new ArgumentException("引数の個数が不正です。", nameof(coefficients));
             double a = coefficients[0], b = coefficients[1], c = coefficients[2], d = coefficients[3], e = coefficients[4];
@@ -294,18 +297,18 @@ namespace EquationSolver
 
             var tmp0 = (3 * b * b - 8 * a * c) / (12 * a * a);//12a^2で割る方
             var tmp1 = (2 * c * c * c - 72 * a * c * e + 27 * b * b * e + 27 * a * d * d - 9 * b * c * d) / (54 * a * a * a);
-            var tmp2 = Complex.Sqrt(3 * (
+            var tmp2 = Complex.Pow(3 * (
                 -256 * a * a * a * e * e * e + 192 * a * a * b * d * e * e + 128 * a * a * c * c * e * e - 144 * a * b * b * c * e * e
                 + 27 * b * b * b * b * e * e - 144 * a * a * c * d * d * e + 6 * a * b * b * d * d * e + 80 * a * b * c * c * d * e
                 - 18 * b * b * b * c * d * e - 16 * a * c * c * c * c * e + 4 * b * b * c * c * c * e + 27 * a * a * d * d * d * d
-                - 18 * a * b * c * d * d * d + 4 * b * b * b * d * d * d + 4 * a * c * c * c * d * d - b * b * c * c * d * d)) / (18 * a * a * a);
+                - 18 * a * b * c * d * d * d + 4 * b * b * b * d * d * d + 4 * a * c * c * c * d * d - b * b * c * c * d * d), 0.5) / (18 * a * a * a);
             var tmp12p = Complex.Pow(tmp1 + tmp2, oneThird);
             var tmp12m = Complex.Pow(tmp1 - tmp2, oneThird);
             var tmp1212p = tmp12p + tmp12m;
             var tmp01212p_sq = Complex.Pow(tmp0 + tmp1212p, 0.5);
             var tmp01212p_msq = Complex.Pow(tmp0 + tmp1212p, -0.5);
-            var tmp3 = b / (4 * a);
-            var tmp_unknown = 1 * 0;//2gの部分(未確認)//0にすると1,2,3,4で合う
+            var tmp3 =(8 * a * a * d - 4 * a * b * c + b * b * b) / (4 * a * a * a);
+            var tmp4 = b / (4 * a) * 2;
 
             if (outputCalInfo)
             {
@@ -316,14 +319,16 @@ namespace EquationSolver
                 Console.WriteLine($"tmp12p:{tmp12p}");
                 Console.WriteLine($"tmp12m:{tmp12m}");
                 Console.WriteLine($"tmp1212p:{tmp1212p}");
-                Console.WriteLine($"tmp1212p_sq:{tmp01212p_sq}");
-                Console.WriteLine($"tmp1212p_msq:{tmp01212p_msq}");
+                Console.WriteLine($"tmp01212p_sq:{tmp01212p_sq}");
+                Console.WriteLine($"tmp01212p_msq:{tmp01212p_msq}");
+                Console.WriteLine($"tmp3:{tmp3}");
+                Console.WriteLine($"tmp4:{tmp4}");
                 Console.WriteLine("----------計算途中情報終了----------");
             }
-            var x1 = 0.5 * (-tmp01212p_sq + Complex.Pow(tmp0 * 2 - tmp1212p + tmp_unknown * tmp01212p_msq, 0.5));// - tmp3?
-            var x2 = 0.5 * (-tmp01212p_sq - Complex.Pow(tmp0 * 2 - tmp1212p + tmp_unknown * tmp01212p_msq, 0.5));
-            var x3 = 0.5 * (tmp01212p_sq + Complex.Pow(tmp0 * 2 - tmp1212p - tmp_unknown * tmp01212p_msq, 0.5));
-            var x4 = 0.5 * (tmp01212p_sq - Complex.Pow(tmp0 * 2 - tmp1212p - tmp_unknown * tmp01212p_msq, 0.5));
+            var x1 = 0.5 * (-tmp01212p_sq + Complex.Pow(tmp0 * 2 - tmp1212p + tmp3 * tmp01212p_msq, 0.5) - tmp4);
+            var x2 = 0.5 * (-tmp01212p_sq - Complex.Pow(tmp0 * 2 - tmp1212p + tmp3 * tmp01212p_msq, 0.5) - tmp4);
+            var x3 = 0.5 * (tmp01212p_sq + Complex.Pow(tmp0 * 2 - tmp1212p - tmp3 * tmp01212p_msq, 0.5) - tmp4);
+            var x4 = 0.5 * (tmp01212p_sq - Complex.Pow(tmp0 * 2 - tmp1212p - tmp3 * tmp01212p_msq, 0.5) - tmp4);
             return new Complex[] { x1, x2, x3, x4 };
         }
 
