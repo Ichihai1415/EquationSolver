@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Numerics;
+using System.Threading;
 using static EquationSolver.EquationSolver;
 
 namespace EquationSolver.test.NETFramework
@@ -10,6 +11,21 @@ namespace EquationSolver.test.NETFramework
         public static readonly ConsoleColor c = Console.ForegroundColor;
         static void Main(string[] args)
         {
+            string showText = "" +
+                "     //////////////////////////////////////\n" +
+                "    ////                        - □ X ////\n" +
+                "   ////    EquationSolver v0.5.1     ////\n" +
+                "  ////            by Ichihai1415    ////\n" +
+                " ////                              ////\n" +
+                "//////////////////////////////////////\n" +
+            "\nhttps://github.com/Ichihai1415/EquationSolver";
+            while (showText.Length > 0)
+            {
+                Console.Write(showText.First());
+                Thread.Sleep(1);
+                showText = showText.Remove(0, 1);
+            }
+            Console.WriteLine("\n\n");
             while (true)
                 try
                 {
@@ -20,7 +36,7 @@ namespace EquationSolver.test.NETFramework
                     Console.WriteLine("\n" +
                         "1.解から方程式を作り計算\n" +
                         "2.方程式の係数を直接指定して計算\n" +
-                        "3.自動実行");
+                        "3.連続実行");
                     Console.ForegroundColor = ConsoleColor.Blue;
 
                     double[] equation;
@@ -204,6 +220,8 @@ namespace EquationSolver.test.NETFramework
                                     Console.WriteLine();
                                 }
                     break;
+                default:
+                    throw new Exception($"値が不正です。{degree}次方程式は対応していません。");
             }
 
 

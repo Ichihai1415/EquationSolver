@@ -283,7 +283,6 @@ namespace EquationSolver
             return new Complex[] { x1, x2, x3 };
         }
 
-
         /// <summary>
         /// 四次方程式の解を解の公式(独自算出)より求めます。
         /// </summary>
@@ -365,7 +364,7 @@ namespace EquationSolver
         /// <param name="a">値1</param>
         /// <param name="b">値2</param>
         /// <returns>最大公約数</returns>
-        public static int GCD(int a, int b)
+        public static long GCD(long a, long b)
         {
             //Console.Write($"GCD  a:{a} b:{b} -> ");
             while (b != 0)
@@ -383,11 +382,11 @@ namespace EquationSolver
         /// <summary>
         /// 分母
         /// </summary>
-        public int denominator;
+        public long denominator;
         /// <summary>
         /// 分子
         /// </summary>
-        public int numerator;
+        public long numerator;
 
         /// <summary>
         /// 分母と分子を指定して初期化します。自動で通分されます。
@@ -395,7 +394,7 @@ namespace EquationSolver
         /// <param name="denominator">分母</param>
         /// <param name="numerator">分子</param>
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
-        public Fraction(int denominator, int numerator)
+        public Fraction(long denominator, long numerator)
         {
             if (denominator == 0)
                 throw new ArgumentException("引数が不正です。分母を0にすることはできません。", nameof(denominator));
@@ -441,14 +440,14 @@ namespace EquationSolver
         /// </summary>
         public void Reduce()
         {
-            if (denominator == -1 && numerator == -1)
+            if (denominator == -1 && numerator == -1 || denominator == long.MinValue || numerator == long.MinValue)
                 return;
             if (denominator < 0)
             {
                 denominator = -denominator;
                 numerator = -numerator;
             }
-            int gcd = EquationSolver.GCD(denominator, Math.Abs(numerator));
+            var gcd = EquationSolver.GCD(denominator, Math.Abs(numerator));
             //Console.Write($"Reduce {this} / {gcd} -> ");
             denominator /= gcd;
             numerator /= gcd;
@@ -511,12 +510,12 @@ namespace EquationSolver
                 return true;
             }
 
-            int denTmp = int.MinValue, numTmp = int.MinValue;
+            long denTmp = long.MinValue, numTmp = long.MinValue;
             bool denUnOK = true, numUnOK = true;
 
             for (int i = 1; i <= maxTry && (denUnOK || numUnOK); i++)
             {
-                int pow = (int)Math.Pow(i, exp);
+                long pow = (long)Math.Pow(i, exp);
 
                 if (denUnOK)
                 {
@@ -546,7 +545,7 @@ namespace EquationSolver
             }
 
             //Console.WriteLine($"{this} -> denTmp:{denTmp} numTmp:{numTmp}");
-            if (denTmp != int.MinValue && numTmp != int.MinValue)
+            if (denUnOK && numUnOK)
             {
                 result = new Fraction(denTmp, numTmp);
                 return true;
