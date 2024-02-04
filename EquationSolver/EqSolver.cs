@@ -16,6 +16,14 @@ namespace EquationSolver
         /// 三分の一
         /// </summary>
         public static readonly double oneThird = 1d / 3d;
+        /// <summary>
+        /// 1の立方根(+√3i)
+        /// </summary>
+        public static readonly Complex omegaP = new Complex(-1, sqrt3) / 2;
+        /// <summary>
+        /// 1の立方根(-√3i)
+        /// </summary>
+        public static readonly Complex omegaM = new Complex(-1, -sqrt3) / 2;
 
         /// <summary>
         /// 解から方程式の係数の配列を生成します。虚数解には対応してません。
@@ -34,13 +42,13 @@ namespace EquationSolver
 
             for (int i = 1; i <= n; i++)//x^(n-i)の係数を求める
             {
-                var coefComb = CreateCombinations(roots, i);
+                var coefComb = CreateCombinations(roots, i);//係数ごとに定数部分の組み合わせを作る
                 foreach (var combi_tmp in coefComb)
                 {
                     var coefficientTmp = 1d;
-                    foreach (var value in combi_tmp)
+                    foreach (var value in combi_tmp)//[1,2,3]内を掛ける//
                         coefficientTmp *= -value;
-                    coefficients[i] += coefficientTmp;
+                    coefficients[i] += coefficientTmp;//掛けたものを足す
                 }
             }
             return coefficients;
@@ -57,12 +65,12 @@ namespace EquationSolver
             if (!coefficients.Any())
                 throw new ArgumentException("引数がnullまたは個数が不足しています。", nameof(coefficients));
 
-            int count = coefficients.Length;
+            var count = coefficients.Length;
             var eqStB = new StringBuilder();
             for (int i = 0; i < count; i++)//(count-i-1)次の項
             {
-                int degree = count - i - 1;//次数
-                double coefficient = coefficients[i];//x^(count-i-1)の係数
+                var degree = count - i - 1;//次数
+                var coefficient = coefficients[i];//x^(count-i-1)の係数
                 if (coefficient == 0)//項なし
                     continue;
                 if (coefficient > 0 && eqStB.Length != 0)
@@ -88,9 +96,9 @@ namespace EquationSolver
         }
 
         /// <summary>
-        /// doubleの組み合わせ(ここでは定数項の組み合わせ([[1,2],[1,3],[2,3]]等))を作ります。
+        /// doubleの組み合わせ(ここでは定数の組み合わせ([[1,2],[1,3],[2,3]]等))を作ります。
         /// </summary>
-        /// <remarks>ここでは(x-1)(x-2)(x-3)で、</remarks>
+        /// <remarks>ここではx=1,2,3 => (x-1)(x-2)(x-3)で、[1,2]などとなるため注意してください</remarks>
         /// <param name="nums">組み合わせを作る配列(ここでは解の配列)</param>
         /// <param name="r">選ぶ個数</param>
         /// <returns>doubleの組み合わせ</returns>
@@ -137,7 +145,7 @@ namespace EquationSolver
             for (int i = start; i <= nums.Length - r_remain; i++)
             {
                 combinationTmp.Add(nums[i]);
-                CreateCombinations(ref result, nums, r_remain - 1, i + 1, combinationTmp);
+                CreateCombinations(ref result, nums, r_remain - 1, i + 1, combinationTmp);//残りの回数、インデックスを次のものになるようにして再帰的に呼び出し
                 combinationTmp.RemoveAt(combinationTmp.Count - 1);
             }
         }
@@ -255,29 +263,26 @@ namespace EquationSolver
 
             var tmp1 = (-2 * b * b * b + 9 * a * b * c - 27 * a * a * d) / (54 * a * a * a);
             var tmp2 = Complex.Pow(3 * (27 * a * a * d * d - 18 * a * b * c * d + 4 * a * c * c * c + 4 * b * b * b * d - b * b * c * c), 0.5) / (18 * a * a);
-            var tmp12p = Complex.Pow(tmp1 + tmp2, oneThird);
-            var tmp12m = Complex.Pow(tmp1 - tmp2, oneThird);
+            var tmp12p = ComplexCbrt(tmp1 + tmp2);
+            var tmp12m = ComplexCbrt(tmp1 - tmp2);
             var tmp3 = b / (3 * a);
-            var tmp4 = new Complex(-1, sqrt3) / 2;
-            var tmp5 = new Complex(-1, -sqrt3) / 2;
 
             if (outputCalInfo)
             {
-                Console.WriteLine("----------計算途中情報開始----------");
+                Console.WriteLine("----------計算途中情報開始----------@Equat3_Formula");
                 Console.WriteLine($"tmp1:{tmp1}");
                 Console.WriteLine($"tmp2:{tmp2}");
                 Console.WriteLine($"tmp12p:{tmp12p}");
                 Console.WriteLine($"tmp12m:{tmp12m}");
                 Console.WriteLine($"tmp3:{tmp3}");
-                Console.WriteLine($"tmp4:{tmp4}");
-                Console.WriteLine($"tmp5:{tmp5}");
-                Console.WriteLine("----------計算途中情報終了----------");
+                Console.WriteLine("----------計算途中情報終了----------@Equat3_Formula");
             }
             var x1 = tmp12p + tmp12m - tmp3;
-            var x2 = tmp4 * tmp12p + tmp5 * tmp12m - tmp3;
-            var x3 = tmp5 * tmp12p + tmp4 * tmp12m - tmp3;
+            var x2 = omegaP * tmp12p + omegaM * tmp12m - tmp3;
+            var x3 = omegaM * tmp12p + omegaP * tmp12m - tmp3;
             return new Complex[] { x1, x2, x3 };
         }
+
 
         /// <summary>
         /// 四次方程式の解を解の公式(独自算出)より求めます。
@@ -301,14 +306,15 @@ namespace EquationSolver
                 -256 * a * a * a * e * e * e + 192 * a * a * b * d * e * e + 128 * a * a * c * c * e * e - 144 * a * b * b * c * e * e
                 + 27 * b * b * b * b * e * e - 144 * a * a * c * d * d * e + 6 * a * b * b * d * d * e + 80 * a * b * c * c * d * e
                 - 18 * b * b * b * c * d * e - 16 * a * c * c * c * c * e + 4 * b * b * c * c * c * e + 27 * a * a * d * d * d * d
-                - 18 * a * b * c * d * d * d + 4 * b * b * b * d * d * d + 4 * a * c * c * c * d * d - b * b * c * c * d * d), 0.5) / (18 * a * a * a);
-            var tmp12p = Complex.Pow(tmp1 + tmp2, oneThird);
-            var tmp12m = Complex.Pow(tmp1 - tmp2, oneThird);
+                - 18 * a * b * c * d * d * d + 4 * b * b * b * d * d * d + 4 * a * c * c * c * d * d - b * b * c * c * d * d
+                ), 0.5) / (18 * a * a * a);
+            var tmp12p = ComplexCbrt(tmp1 + tmp2);
+            var tmp12m = ComplexCbrt(tmp1 - tmp2);
             var tmp1212p = tmp12p + tmp12m;
             var tmp01212p_sq = Complex.Pow(tmp0 + tmp1212p, 0.5);
             var tmp01212p_msq = Complex.Pow(tmp0 + tmp1212p, -0.5);
-            var tmp3 =(8 * a * a * d - 4 * a * b * c + b * b * b) / (4 * a * a * a);
-            var tmp4 = b / (4 * a) * 2;
+            var tmp3 = (8 * a * a * d - 4 * a * b * c + b * b * b) / (4 * a * a * a);
+            var tmp4 = b / (2 * a);
 
             if (outputCalInfo)
             {
@@ -333,43 +339,223 @@ namespace EquationSolver
         }
 
         /// <summary>
-        /// 小数を分数に変換します。
+        /// Complexの三乗根を求めます。
         /// </summary>
-        /// <param name="input">変換する小数</param>
-        /// <param name="maxDenominator">分母の最大</param>
-        /// <param name="toleranceLevel">計算した分数での小数と変換する小数の差の許容範囲</param>
-        /// <returns>分数([分母,分子,判定誤差])、失敗した場合[-1]</returns>
-        public static int[] Decimal2Fraction(double input, int maxDenominator = 99999, double toleranceLevel = 0.00001)
+        /// <remarks>Complex.Powで複素数になる問題を回避するものです。</remarks>
+        /// <param name="input">値</param>
+        /// <returns>三乗根(分数化してできなければComplex.Powの方)</returns>
+        public static Complex ComplexCbrt(Complex input)
         {
-            return Decimal2Fraction(input, out _, maxDenominator, toleranceLevel);
+            //Console.WriteLine(input);
+            if (input.Imaginary == 0)
+            {
+                var fra = new Fraction(input.Real, out double err);
+                //Console.WriteLine($"{fra} err:{err}");
+                bool convAble = fra.TryRdrt(out Fraction fraCbrt, 3);
+                //Console.WriteLine($"cbrt:{convAble} val:{fraCbrt}");
+                if (convAble)
+                    return new Complex(fraCbrt.ToDouble(), 0);
+            }
+            return Complex.Pow(input, oneThird);
         }
 
         /// <summary>
-        /// 小数を分数に変換します。
+        /// ユークリッドの互除法で最大公約数を求めます。
         /// </summary>
+        /// <param name="a">値1</param>
+        /// <param name="b">値2</param>
+        /// <returns>最大公約数</returns>
+        public static int GCD(int a, int b)
+        {
+            //Console.Write($"GCD  a:{a} b:{b} -> ");
+            while (b != 0)
+                (a, b) = (b, a % b);
+            //Console.WriteLine(a);
+            return a;
+        }
+    }
+
+    /// <summary>
+    /// 簡単な分数の構造体
+    /// </summary>
+    public struct Fraction
+    {
+        /// <summary>
+        /// 分母
+        /// </summary>
+        public int denominator;
+        /// <summary>
+        /// 分子
+        /// </summary>
+        public int numerator;
+
+        /// <summary>
+        /// 分母と分子を指定して初期化します。自動で通分されます。
+        /// </summary>
+        /// <param name="denominator">分母</param>
+        /// <param name="numerator">分子</param>
+        /// <exception cref="ArgumentException">引数が不正な場合</exception>
+        public Fraction(int denominator, int numerator)
+        {
+            if (denominator == 0)
+                throw new ArgumentException("引数が不正です。分母を0にすることはできません。", nameof(denominator));
+            this.denominator = denominator;
+            this.numerator = numerator;
+            //Reduce();
+        }
+
+        /// <summary>
+        /// 小数から分数へ変換して初期化します。
+        /// </summary>
+        /// <remarks>失敗時-1/-1となります。</remarks>
         /// <param name="input">変換する小数</param>
         /// <param name="error">判定時の誤差(out)失敗時NaN</param>
         /// <param name="maxDenominator">分母の最大</param>
         /// <param name="toleranceLevel">計算した分数での小数と変換する小数の差の許容範囲</param>
-        /// <returns>分数([分母,分子,判定誤差])、失敗した場合[-1]</returns>
-        public static int[] Decimal2Fraction(double input, out double error, int maxDenominator = 99999, double toleranceLevel = 0.00001)
+        public Fraction(double input, out double error, int maxDenominator = 99999, double toleranceLevel = 0.00001)
         {
             for (int d = 2; d <= maxDenominator; d++)//input=1.6,d=2の例を以下に
             {
                 var inpAbs = Math.Abs(input);
                 var nearD = Math.Max(Math.Round(inpAbs / (1d / d)), 1);//inputを割ると余りが0に近い数字(0以上)//1.6/0.5=>3.2=>3
-                //Console.WriteLine($"{input}:{d}->{nearD} {Math.Abs(inpAbs - (nearD / d))}");//動作確認用
+                //Console.WriteLine($"{input}/{d}->{nearD} {Math.Abs(inpAbs - (nearD / d))}");//動作確認用
                 error = inpAbs - (nearD / d);
                 if (Math.Abs(error) <= toleranceLevel)//1.6-3/2=>0.1=>false
+                {
+                    denominator = d;
                     if (input < 0)
-                        return new int[] { -(int)nearD, d };
+                        numerator = -(int)nearD;
                     else
-                        return new int[] { (int)nearD, d };
+                        numerator = (int)nearD;
+                    Reduce();
+                    return;
+                }
             }
             error = double.NaN;
-            return new int[] { -1 };
-            //使用例:Console.WriteLine(string.Join("/", Decimal2Fraction(1.33333333)).Replace("-1/-1", "(変換失敗)"));
+            denominator = -1;
+            numerator = -1;
         }
 
+        /// <summary>
+        /// 通分します。
+        /// </summary>
+        public void Reduce()
+        {
+            if (denominator == -1 && numerator == -1)
+                return;
+            if (denominator < 0)
+            {
+                denominator = -denominator;
+                numerator = -numerator;
+            }
+            int gcd = EquationSolver.GCD(denominator, Math.Abs(numerator));
+            //Console.Write($"Reduce {this} / {gcd} -> ");
+            denominator /= gcd;
+            numerator /= gcd;
+            //Console.WriteLine(this);
+        }
+
+        /// <summary>
+        /// 値が不正でないか確認します。
+        /// </summary>
+        /// <returns>正常値の場合true、不正な値の場合false</returns>
+        public bool IsNormalValue()
+        {
+            if (denominator > 0)
+                return true;
+            else
+                return false;
+        }
+
+        /// <summary>
+        /// 1/3,-2/5のような形式のstringに変換します
+        /// </summary>
+        /// <returns>stringに変換された分数　不正な場合NaN</returns>
+        public override string ToString()
+        {
+            if (denominator > 0)
+                return $"{numerator}/{denominator}";
+            else
+                return "NaN";
+        }
+
+        /// <summary>
+        /// 小数に変換します。
+        /// </summary>
+        /// <returns>分数と同等の小数　不正な場合double.NaN</returns>
+        public double ToDouble()
+        {
+            if (denominator > 0)
+                return (double)numerator / denominator;
+            else
+                return double.NaN;
+        }
+
+        /// <summary>
+        /// 累乗根を求めます。
+        /// </summary>
+        /// <param name="result">求めた分数、失敗した場合-1/-1</param>
+        /// <param name="exp">累乗根の次数</param>
+        /// <param name="maxTry">最大挑戦回数(分母と分子がこのexp乗と同じか判定します)</param>
+        /// <returns>変換に成功した場合true、失敗した場合false</returns>
+        public bool TryRdrt(out Fraction result, int exp, int maxTry = 20)
+        {
+            if (denominator < 0)
+            {
+                result = new Fraction(-1, -1);
+                return false;
+            }
+            if (denominator == Math.Abs(numerator))
+            {
+                result = new Fraction(1, numerator / Math.Abs(numerator));//-2/2=-1
+                return true;
+            }
+
+            int denTmp = int.MinValue, numTmp = int.MinValue;
+            bool denUnOK = true, numUnOK = true;
+
+            for (int i = 1; i <= maxTry && (denUnOK || numUnOK); i++)
+            {
+                int pow = (int)Math.Pow(i, exp);
+
+                if (denUnOK)
+                {
+                    if (pow == denominator)
+                    {
+                        denTmp = i;
+                        denUnOK = false;
+                    }
+                    else if (pow > denominator)
+                        denUnOK = false;
+                }
+                if (numUnOK)
+                {
+                    if (pow == numerator)
+                    {
+                        numTmp = i;
+                        numUnOK = false;
+                    }
+                    else if (pow == -numerator)
+                    {
+                        numTmp = -i;
+                        numUnOK = false;
+                    }
+                    else if (pow > Math.Abs(numerator))
+                        numUnOK = false;
+                }
+            }
+
+            //Console.WriteLine($"{this} -> denTmp:{denTmp} numTmp:{numTmp}");
+            if (denTmp != int.MinValue && numTmp != int.MinValue)
+            {
+                result = new Fraction(denTmp, numTmp);
+                return true;
+            }
+            else
+            {
+                result = new Fraction(-1, -1);
+                return false;
+            }
+        }
     }
 }

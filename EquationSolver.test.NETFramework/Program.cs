@@ -13,12 +13,14 @@ namespace EquationSolver.test.NETFramework
             while (true)
                 try
                 {
+                start:
                     Console.ForegroundColor = c;
                     Console.Write("モードを入力してください。");
                     Console.ForegroundColor = ConsoleColor.Yellow;
                     Console.WriteLine("\n" +
                         "1.解から方程式を作り計算\n" +
-                        "2.方程式の係数を直接指定して計算");
+                        "2.方程式の係数を直接指定して計算\n" +
+                        "3.自動実行");
                     Console.ForegroundColor = ConsoleColor.Blue;
 
                     double[] equation;
@@ -53,6 +55,9 @@ namespace EquationSolver.test.NETFramework
                             Console.ForegroundColor = c;
                             Console.WriteLine(" になります。");
                             break;
+                        case "3":
+                            CC();
+                            goto start;
                         default:
                             throw new Exception("数字のみで選択肢のものを入力してください。");
                     }
@@ -102,6 +107,106 @@ namespace EquationSolver.test.NETFramework
                     Console.WriteLine(ex.ToString());
                     Console.ForegroundColor = c;
                 }
+        }
+
+        public static void CC()
+        {
+            Console.ForegroundColor = c;
+            Console.WriteLine("次数を入力してください。");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            var degree = int.Parse(Console.ReadLine());
+            Console.ForegroundColor = c;
+            Console.WriteLine("最小解を入力してください。");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            var minRoot = double.Parse(Console.ReadLine());
+            Console.ForegroundColor = c;
+            Console.WriteLine("最大解を入力してください。");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            var maxRoot = double.Parse(Console.ReadLine());
+            Console.ForegroundColor = c;
+            Console.WriteLine("解の差を入力してください。");
+            Console.ForegroundColor = ConsoleColor.Cyan;
+            var difRoot = double.Parse(Console.ReadLine());
+
+            switch (degree)
+            {
+                case 1:
+                    for (double i = minRoot; i <= maxRoot; i += difRoot)
+                    {
+                        Console.ForegroundColor = ConsoleColor.Cyan;
+                        Console.Write($"{i}");
+                        Console.ForegroundColor = c;
+                        Console.Write(" -> ");
+                        var equa = CreateEquation(new double[] { i });
+                        Console.ForegroundColor = ConsoleColor.DarkGreen;
+                        Console.Write(Equation2String(equa));
+                        Console.ForegroundColor = c;
+                        Console.Write(" -> ");
+                        Console.ForegroundColor = ConsoleColor.Green;
+                        Console.Write(ComplexArray2StringSimple(new Complex[] { new Complex(-equa[1] / equa[0], 0) }, 5));
+                        Console.WriteLine();
+                    }
+                    break;
+                case 2:
+                    for (double i = minRoot; i <= maxRoot; i += difRoot)
+                        for (double j = i; j <= maxRoot; j += difRoot)
+                        {
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+                            Console.Write($"{i},{j}");
+                            Console.ForegroundColor = c;
+                            Console.Write(" -> ");
+                            var equa = CreateEquation(new double[] { i, j });
+                            Console.ForegroundColor = ConsoleColor.DarkGreen;
+                            Console.Write(Equation2String(equa));
+                            Console.ForegroundColor = c;
+                            Console.Write(" -> ");
+                            Console.ForegroundColor = ConsoleColor.Green;
+                            Console.Write(ComplexArray2StringSimple(Equat2_Formula(equa).OrderBy(x => x.Magnitude).ToArray(), 5));
+                            Console.WriteLine();
+                        }
+                    break;
+                case 3:
+                    for (double i = minRoot; i <= maxRoot; i += difRoot)
+                        for (double j = i; j <= maxRoot; j += difRoot)
+                            for (double k = j; k <= maxRoot; k += difRoot)
+                            {
+                                Console.ForegroundColor = ConsoleColor.Cyan;
+                                Console.Write($"{i},{j},{k}");
+                                Console.ForegroundColor = c;
+                                Console.Write(" -> ");
+                                var equa = CreateEquation(new double[] { i, j, k });
+                                Console.ForegroundColor = ConsoleColor.DarkGreen;
+                                Console.Write(Equation2String(equa));
+                                Console.ForegroundColor = c;
+                                Console.Write(" -> ");
+                                Console.ForegroundColor = ConsoleColor.Green;
+                                Console.Write(ComplexArray2StringSimple(Equat3_Formula(equa).OrderBy(x => x.Magnitude).ToArray(), 5));
+                                Console.WriteLine();
+                            }
+                    break;
+                case 4:
+                    for (double i = minRoot; i <= maxRoot; i += difRoot)
+                        for (double j = i; j <= maxRoot; j += difRoot)
+                            for (double k = j; k <= maxRoot; k += difRoot)
+                                for (double l = k; l <= maxRoot; l += difRoot)
+                                {
+                                    Console.ForegroundColor = ConsoleColor.Cyan;
+                                    Console.Write($"{i},{j},{k},{l}");
+                                    Console.ForegroundColor = c;
+                                    Console.Write(" -> ");
+                                    var equa = CreateEquation(new double[] { i, j, k, l });
+                                    Console.ForegroundColor = ConsoleColor.DarkGreen;
+                                    Console.Write(Equation2String(equa));
+                                    Console.ForegroundColor = c;
+                                    Console.Write(" -> ");
+                                    Console.ForegroundColor = ConsoleColor.Green;
+                                    Console.Write(ComplexArray2StringSimple(Equat4_Formula(equa).OrderBy(x => x.Magnitude).ToArray(), 5));
+                                    Console.WriteLine();
+                                }
+                    break;
+            }
+
+
         }
     }
 }

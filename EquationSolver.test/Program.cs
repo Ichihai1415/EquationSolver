@@ -1,4 +1,5 @@
-﻿using static EquationSolver.EquationSolver;
+﻿using System.Numerics;
+using static EquationSolver.EquationSolver;
 
 namespace EquationSolver.test
 {
@@ -9,6 +10,23 @@ namespace EquationSolver.test
             Console.WriteLine("Hello, World!");
 
 
+            //Console.WriteLine($"125,25:{GCD(125, 25)}");
+            //Console.WriteLine($"25,125:{GCD(25, 125)}");
+            //Console.WriteLine($"-125,25:{GCD(-125, 25)}");
+            //Console.WriteLine($"-25,125:{GCD(-25, 125)}");
+            //Console.WriteLine($"125,-25:{GCD(125, -25)}");
+            //Console.WriteLine($"25,-125:{GCD(25, -125)}");
+            //Console.WriteLine($"-125,-25:{GCD(-125, -25)}");
+            //Console.WriteLine($"-25,-125:{GCD(-25, -125)}");
+
+
+            //Console.WriteLine(Math.Pow(0.037037037037037035, 1d/3));
+            //Console.WriteLine(Complex.Pow(0.037037037037037035, 1d/3));
+            //Console.WriteLine(Complex.Pow(-0.037037037037037035, 1d/3));
+            //Console.WriteLine(Complex.Pow(-1d/27, 1d/3));
+
+            //Complex result = Complex.Pow(-0.037037037037037035, 1d / 3);
+            //Console.WriteLine($"Result: {result}");
             //Console.WriteLine(string.Join(",", CreateEquation([1, 2]).Select(x => x.ToString())));
             //Console.WriteLine(string.Join(",", CreateEquation([1, 2, 3]).Select(x => x.ToString())));
             //Console.WriteLine(string.Join(",", CreateEquation([1, 2, 3, 4]).Select(x => x.ToString())));
@@ -32,28 +50,30 @@ namespace EquationSolver.test
             //Console.WriteLine(Equation2String());
             //Console.WriteLine(ComplexArray2String());
 
-            //var a = CreateEquation([1, 2, 2]);
-            //Console.WriteLine(Equation2String(a));
-            //Console.WriteLine(ComplexArray2String(Equat3_Formula(a, true)));
+            var a = CreateEquation([1, 2, 2]);
+            Console.WriteLine(Equation2String(a));
+            Console.WriteLine(ComplexArray2String(Equat3_Formula(a, true)));
+            Console.WriteLine();
+            Console.WriteLine(ComplexArray2String(Equat3_Formula([1,2,3,0], true)));
 
             //var b = CreateEquation([1, 2, 3, 4]);
 
-            
-            var b = CreateEquation([5, 0, 1, 3]);
-            foreach (var i in b)
-            {
-                Console.Write(i);
-                Console.Write(" ");
-            }
-            Console.WriteLine();
-            Console.WriteLine(Equation2String(b));
-            Console.WriteLine(ComplexArray2String(Equat4_Formula(b,true)));
-            
+
+            //var b = CreateEquation([5, 0, 1, 3]);
+            //foreach (var i in b)
+            //{
+            //    Console.Write(i);
+            //    Console.Write(" ");
+            //}
+            //Console.WriteLine();
+            //Console.WriteLine(Equation2String(b));
+            //Console.WriteLine(ComplexArray2String(Equat4_Formula(b, true)));
+
 
             //return;
 
 
-            int m = 5;
+            int m = 8;
 
 
             //for (int i = 1; i <= m; i++)
@@ -65,7 +85,7 @@ namespace EquationSolver.test
             //            var equa = CreateEquation([i, j, k]);
             //            Console.Write(Equation2String(equa));
             //            Console.Write(" -> ");
-            //            Console.Write(ComplexArray2StringSimple(Equat3_Formula(equa), 10));
+            //            Console.Write(ComplexArray2StringSimple([.. Equat3_Formula(equa).OrderBy(x => x.Magnitude)], 10));
             //            Console.WriteLine();
 
             //            /*
@@ -79,6 +99,7 @@ namespace EquationSolver.test
             //            Console.WriteLine();
             //            */
             //        }
+
             /*
             Console.Write("0.5773502692 -> " + string.Join("/", Decimal2Fraction(0.5773502692, out double error, int.MaxValue, 1e-15)).Replace("-1/-1", "(変換失敗)"));
             Console.WriteLine($" error:{error}");
@@ -96,9 +117,9 @@ namespace EquationSolver.test
 
 
             for (int i = 1; i <= m; i++)
-                for (int j = 0; j <= m; j++)
-                    for (int k = 0; k <= m; k++)
-                        for (int l = 0; l <= m; l++)
+                for (int j = i; j <= m; j++)
+                    for (int k = j; k <= m; k++)
+                        for (int l = k; l <= m; l++)
                         {
                             Console.Write($"{i},{j},{k},{l} -> ");
                             var equa = CreateEquation([i, j, k, l]);
@@ -119,15 +140,10 @@ namespace EquationSolver.test
                         }
 
 
-            /*
-            Console.WriteLine(string.Join("/", Decimal2Fraction(0.1)).Replace("-1/-1", "(変換失敗)"));
-            Console.WriteLine(string.Join("/", Decimal2Fraction(0.333)).Replace("-1/-1", "(変換失敗)"));
-            Console.WriteLine(string.Join("/", Decimal2Fraction(0.6666666)).Replace("-1/-1", "(変換失敗)"));
-            Console.WriteLine(string.Join("/", Decimal2Fraction(1.333333)).Replace("-1/-1", "(変換失敗)"));
-            Console.WriteLine(string.Join("/", Decimal2Fraction(0.725)).Replace("-1/-1", "(変換失敗)"));
-            Console.WriteLine(string.Join("/", Decimal2Fraction(1.13461538)).Replace("-1/-1", "(変換失敗)"));
-            Console.WriteLine(string.Join("/", Decimal2Fraction(119.903614)).Replace("-1/-1", "(変換失敗)"));
-            */
+            var b = CreateEquation([5, 4, 4, 3]);
+            Console.WriteLine();
+            Console.WriteLine(Equation2String(b));
+            Console.WriteLine(ComplexArray2String(Equat4_Formula(b, true)));
         }
     }
 }
