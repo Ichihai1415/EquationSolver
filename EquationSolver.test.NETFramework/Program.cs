@@ -3,47 +3,75 @@ using System.Linq;
 using System.Numerics;
 using System.Threading;
 using static EquationSolver.EquationSolver;
+using static EquationSolver.EquationSolver.Command;
 
 namespace EquationSolver.test.NETFramework
 {
     internal class Program
     {
         public static readonly ConsoleColor c = Console.ForegroundColor;
+        public const string menuText = "" +
+            "1.コマンド\n" +
+            "2.解から方程式を作り計算\n" +
+            "3.連続実行\n" +
+            "4.方程式の係数を直接指定して計算";
+
         static void Main(string[] args)
         {
-            string showText = "" +
-                "     //////////////////////////////////////\n" +
-                "    ////                       - ロ X ////\n" +
-                "   ////    EquationSolver v0.5.2     ////\n" +
-                "  ////            by Ichihai1415    ////\n" +
-                " ////                              ////\n" +
-                "//////////////////////////////////////\n" +
-            "\nhttps://github.com/Ichihai1415/EquationSolver";
-
-            while (showText.Length > 0)
-            {
-                Console.Write(showText.First());
-                Thread.Sleep(1);
-                showText = showText.Remove(0, 1);
-            }
-            Console.WriteLine("\n\n");
+            Console.WriteLine("This library is released under the **MIT License**. The creator assumes no liability for any reason whatsoever.\nMore details can be found in the command menu.\n");
+            Thread.Sleep(1000);
             while (true)
                 try
                 {
                 start:
                     Console.ForegroundColor = c;
-                    Console.Write("モードを入力してください。");
+                    Console.WriteLine("モードを入力してください。");
                     Console.ForegroundColor = ConsoleColor.Yellow;
-                    Console.WriteLine("\n" +
-                        "1.解から方程式を作り計算\n" +
-                        "2.方程式の係数を直接指定して計算\n" +
-                        "3.連続実行");
+                    Console.WriteLine(menuText);
                     Console.ForegroundColor = ConsoleColor.Blue;
 
                     double[] equation;
                     switch (Console.ReadLine())
                     {
                         case "1":
+                            Console.ForegroundColor = c;
+                            Console.WriteLine("コマンドを入力してください。()が付いたものまたは-が付いたものを指定してください。\n");
+                            Console.ForegroundColor = ConsoleColor.Yellow;
+                            Console.WriteLine("" +
+                            "ShowInfoAnime() / -sia : 情報アニメーションを表示します。\n" +
+                            "ShowLicense()   / -sli : ライセンス全文を表示します。\n" +
+                            "Clear()         / -cle : コンソールをクリアします。\n" +
+                            "ClearShowAni()  / -csa : コンソールをクリアし情報アニメーションを表示します。");
+                            Console.ForegroundColor = ConsoleColor.Cyan;
+
+                            switch (Console.ReadLine())
+                            {
+                                case "ShowInfoAnime()":
+                                case "-sia":
+                                    Console.ForegroundColor = c;
+                                    ShowInfoAnime();
+                                    break;
+                                case "ShowLicense()":
+                                case "-sli":
+                                    Console.ForegroundColor = c;
+                                    ShowLicense();
+                                    break;
+                                case "Clear()":
+                                case "-cle":
+                                    Console.ForegroundColor = ConsoleColor.Yellow;
+                                    Clear();
+                                    break;
+                                case "ClearShowAni()":
+                                case "-csa":
+                                    Clear();
+                                    Console.ForegroundColor = c;
+                                    ShowInfoAnime();
+                                    break;
+                                default:
+                                    throw new Exception("コマンドが見つかりませんでした。");
+                            }
+                            goto start;
+                        case "2":
                             Console.ForegroundColor = c;
                             Console.WriteLine("解をコンマ(,)区切りで入力してください。");
                             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -60,7 +88,10 @@ namespace EquationSolver.test.NETFramework
                             Console.ForegroundColor = c;
                             Console.WriteLine($" になります。 方程式生成:{(creEqEn - creEqSt).TotalMilliseconds}ms");
                             break;
-                        case "2":
+                        case "3":
+                            CC();
+                            goto start;
+                        case "4":
                             Console.ForegroundColor = c;
                             Console.WriteLine("係数をコンマ(,)区切りで入力してください。(降べきの順・0も含める)");
                             Console.ForegroundColor = ConsoleColor.Cyan;
@@ -72,9 +103,6 @@ namespace EquationSolver.test.NETFramework
                             Console.ForegroundColor = c;
                             Console.WriteLine(" になります。");
                             break;
-                        case "3":
-                            CC();
-                            goto start;
                         default:
                             throw new Exception("数字のみで選択肢のものを入力してください。");
                     }

@@ -3,16 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
 using System.Text;
+using System.Threading;
 
 namespace EquationSolver
 {
     public static class EquationSolver
     {
-        /// <summary>
-        /// ライブラリバージョン
-        /// </summary>
-        public static readonly string version = "0.5.2";
-
         /// <summary>
         /// ルート3
         /// </summary>
@@ -29,6 +25,68 @@ namespace EquationSolver
         /// 1の立方根(-√3i)
         /// </summary>
         public static readonly Complex omegaM = new Complex(-1, -sqrt3) / 2;
+
+        public const string showInfoText = "\n" +
+            "       //////////////////////////////////////\n" +
+            "      ////                       - ロ X ////\n" +
+            "     ////    EquationSolver v0.5.2     ////\n" +
+            "    ////            by Ichihai1415    ////\n" +
+            "   ////                              ////\n" +
+            "  //////////////////////////////////////\n" +
+            "\nhttps://github.com/Ichihai1415/EquationSolver\n\n";
+
+        /// <summary>
+        /// 各コマンド
+        /// </summary>
+        public static class Command
+        {
+            /// <summary>
+            /// ライブラリ情報アニメーションを表示します。
+            /// </summary>
+            public static void ShowInfoAnime()
+            {
+                string showInfoText_ = showInfoText;
+                while (showInfoText_.Length > 0)
+                {
+                    Console.Write(showInfoText_.First());
+                    Thread.Sleep(1);
+                    showInfoText_ = showInfoText_.Remove(0, 1);
+                }
+            }
+
+            /// <summary>
+            /// ライセンスを表示します。
+            /// </summary>
+            public static void ShowLicense()
+            {
+                Console.WriteLine("\nCopyright 2024 Ichihai1415\n\n" +
+                    "Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the “Software”), " +
+                    "to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, " +
+                    "and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:\n\n" +
+                    "The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.\n\n" +
+                    "THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, " +
+                    "FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, " +
+                    "WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n");
+            }
+
+            /// <summary>
+            /// コンソールをクリアします。
+            /// </summary>
+            public static void Clear()
+            {
+                Console.Clear();
+                Console.Write("\x1b[3J");//環境によりすべてクリアされないことがあるため
+            }
+
+            /// <summary>
+            /// コンソールをクリアし情報アニメーションを表示します。
+            /// </summary>
+            public static void ClearShowAni()
+            {
+                Clear();
+                ShowInfoAnime();
+            }
+        }
 
         /// <summary>
         /// 解から方程式の係数の配列を生成します。虚数解には対応してません。
@@ -377,201 +435,200 @@ namespace EquationSolver
             //Console.WriteLine(a);
             return a;
         }
-    }
-
-    /// <summary>
-    /// 簡単な分数の構造体
-    /// </summary>
-    public struct Fraction
-    {
         /// <summary>
-        /// 分母
+        /// 簡単な分数の構造体
         /// </summary>
-        public long denominator;
-        /// <summary>
-        /// 分子
-        /// </summary>
-        public long numerator;
-
-        /// <summary>
-        /// 分母と分子を指定して初期化します。
-        /// </summary>
-        /// <param name="denominator">分母</param>
-        /// <param name="numerator">分子</param>
-        /// <exception cref="ArgumentException">引数が不正な場合</exception>
-        public Fraction(long denominator, long numerator)
+        public struct Fraction
         {
-            if (denominator == 0)
-                throw new ArgumentException("引数が不正です。分母を0にすることはできません。", nameof(denominator));
-            this.denominator = denominator;
-            this.numerator = numerator;
-            //Reduce();
-        }
+            /// <summary>
+            /// 分母
+            /// </summary>
+            public long denominator;
+            /// <summary>
+            /// 分子
+            /// </summary>
+            public long numerator;
 
-        /// <summary>
-        /// 小数から分数へ変換して初期化します。
-        /// </summary>
-        /// <remarks>失敗時-1/-1となります。</remarks>
-        /// <param name="input">変換する小数</param>
-        /// <param name="error">判定時の誤差(out)失敗時NaN</param>
-        /// <param name="maxDenominator">分母の最大</param>
-        /// <param name="toleranceLevel">計算した分数での小数と変換する小数の差の許容範囲</param>
-        public Fraction(double input, out double error, int maxDenominator = int.MaxValue, double toleranceLevel = 0.00001)
-        {
-            if (input == 0)//0の時(下は/0できないため)
+            /// <summary>
+            /// 分母と分子を指定して初期化します。
+            /// </summary>
+            /// <param name="denominator">分母</param>
+            /// <param name="numerator">分子</param>
+            /// <exception cref="ArgumentException">引数が不正な場合</exception>
+            public Fraction(long denominator, long numerator)
             {
-                denominator = 1;
-                numerator = 0;
-                error = 0;
-                return;
+                if (denominator == 0)
+                    throw new ArgumentException("引数が不正です。分母を0にすることはできません。", nameof(denominator));
+                this.denominator = denominator;
+                this.numerator = numerator;
+                //Reduce();
             }
 
-            for (int d = 1; d <= maxDenominator; d++)//input=1.6,d=2の例を以下に
+            /// <summary>
+            /// 小数から分数へ変換して初期化します。
+            /// </summary>
+            /// <remarks>失敗時-1/-1となります。</remarks>
+            /// <param name="input">変換する小数</param>
+            /// <param name="error">判定時の誤差(out)失敗時NaN</param>
+            /// <param name="maxDenominator">分母の最大</param>
+            /// <param name="toleranceLevel">計算した分数での小数と変換する小数の差の許容範囲</param>
+            public Fraction(double input, out double error, int maxDenominator = int.MaxValue, double toleranceLevel = 0.00001)
             {
-                var inpAbs = Math.Abs(input);
-                var nearD = Math.Max(Math.Round(inpAbs / (1d / d)), 1);//inputを割ると余りが0に近い数字(0以上)//1.6/0.5=>3.2=>3
-                //Console.WriteLine($"{input}/{d}->{nearD} {Math.Abs(inpAbs - (nearD / d))}");//動作確認用
-                error = inpAbs - (nearD / d);
-                if (Math.Abs(error) <= toleranceLevel)//1.6-3/2=>0.1=>false
+                if (input == 0)//0の時(下は/0できないため)
                 {
-                    denominator = d;
-                    if (input < 0)
-                        numerator = -(int)nearD;
-                    else
-                        numerator = (int)nearD;
-                    //Reduce();
+                    denominator = 1;
+                    numerator = 0;
+                    error = 0;
                     return;
                 }
-            }
-            error = double.NaN;
-            denominator = -1;
-            numerator = -1;
-        }
 
-        /// <summary>
-        /// 通分します。
-        /// </summary>
-        public void Reduce()
-        {
-            if (denominator == -1 && numerator == -1 || denominator == long.MinValue || numerator == long.MinValue)
-                return;
-            if (denominator < 0)
-            {
-                denominator = -denominator;
-                numerator = -numerator;
-            }
-            var gcd = EquationSolver.GCD(denominator, Math.Abs(numerator));
-            //Console.Write($"Reduce {this} / {gcd} -> ");
-            denominator /= gcd;
-            numerator /= gcd;
-            //Console.WriteLine(this);
-        }
-
-        /// <summary>
-        /// 値が不正でないか確認します。
-        /// </summary>
-        /// <returns>正常値の場合true、不正な値の場合false</returns>
-        public bool IsNormalValue()
-        {
-            if (denominator > 0)
-                return true;
-            else
-                return false;
-        }
-
-        /// <summary>
-        /// 1/3,-2/5のような形式のstringに変換します
-        /// </summary>
-        /// <returns>stringに変換された分数　不正な場合NaN</returns>
-        public override string ToString()
-        {
-            if (denominator > 0)
-                return $"{numerator}/{denominator}";
-            else
-                return "NaN";
-        }
-
-        /// <summary>
-        /// 小数に変換します。
-        /// </summary>
-        /// <returns>分数と同等の小数　不正な場合double.NaN</returns>
-        public double ToDouble()
-        {
-            if (denominator > 0)
-                return (double)numerator / denominator;
-            else
-                return double.NaN;
-        }
-
-        /// <summary>
-        /// 累乗根を求めます。
-        /// </summary>
-        /// <param name="result">求めた分数、失敗した場合-1/-1</param>
-        /// <param name="exp">累乗根の次数</param>
-        /// <param name="maxTry">最大挑戦回数(分母と分子がこのexp乗と同じか判定します)</param>
-        /// <returns>変換に成功した場合true、失敗した場合false</returns>
-        public bool TryRdrt(out Fraction result, int exp, int maxTry = 999)
-        {
-            if (denominator < 0)
-            {
-                result = new Fraction(-1, -1);
-                return false;
-            }
-            if (denominator == Math.Abs(numerator))
-            {
-                result = new Fraction(1, numerator / Math.Abs(numerator));//-2/2=-1
-                return true;
-            }
-
-            long denTmp = long.MinValue, numTmp = long.MinValue;
-            bool denUnOK = true, numUnOK = true;
-
-            if (numerator == 0)//下ではできない(分子0の場合だけ許可)
-            {
-                numTmp = 0;
-                numUnOK = false;
-            }
-            for (int i = 1; i <= maxTry && (denUnOK || numUnOK); i++)
-            {
-                long pow = (long)Math.Pow(i, exp);
-
-                if (denUnOK)
+                for (int d = 1; d <= maxDenominator; d++)//input=1.6,d=2の例を以下に
                 {
-                    if (pow == denominator)
+                    var inpAbs = Math.Abs(input);
+                    var nearD = Math.Max(Math.Round(inpAbs / (1d / d)), 1);//inputを割ると余りが0に近い数字(0以上)//1.6/0.5=>3.2=>3
+                                                                           //Console.WriteLine($"{input}/{d}->{nearD} {Math.Abs(inpAbs - (nearD / d))}");//動作確認用
+                    error = inpAbs - (nearD / d);
+                    if (Math.Abs(error) <= toleranceLevel)//1.6-3/2=>0.1=>false
                     {
-                        denTmp = i;
-                        denUnOK = false;
+                        denominator = d;
+                        if (input < 0)
+                            numerator = -(int)nearD;
+                        else
+                            numerator = (int)nearD;
+                        //Reduce();
+                        return;
                     }
-                    else if (pow > denominator)
-                        denUnOK = false;
                 }
-                if (numUnOK)
-                {
-                    if (pow == numerator)
-                    {
-                        numTmp = i;
-                        numUnOK = false;
-                    }
-                    else if (pow == -numerator)
-                    {
-                        numTmp = -i;
-                        numUnOK = false;
-                    }
-                    else if (pow > Math.Abs(numerator))
-                        numUnOK = false;
-                }
+                error = double.NaN;
+                denominator = -1;
+                numerator = -1;
             }
 
-            //Console.WriteLine($"{this} -> denTmp:{denTmp} numTmp:{numTmp}");
-            if (!denUnOK && !numUnOK)
+            /// <summary>
+            /// 通分します。
+            /// </summary>
+            public void Reduce()
             {
-                result = new Fraction(denTmp, numTmp);
-                return true;
+                if (denominator == -1 && numerator == -1 || denominator == long.MinValue || numerator == long.MinValue)
+                    return;
+                if (denominator < 0)
+                {
+                    denominator = -denominator;
+                    numerator = -numerator;
+                }
+                var gcd = GCD(denominator, Math.Abs(numerator));
+                //Console.Write($"Reduce {this} / {gcd} -> ");
+                denominator /= gcd;
+                numerator /= gcd;
+                //Console.WriteLine(this);
             }
-            else
+
+            /// <summary>
+            /// 値が不正でないか確認します。
+            /// </summary>
+            /// <returns>正常値の場合true、不正な値の場合false</returns>
+            public bool IsNormalValue()
             {
-                result = new Fraction(-1, -1);
-                return false;
+                if (denominator > 0)
+                    return true;
+                else
+                    return false;
+            }
+
+            /// <summary>
+            /// 1/3,-2/5のような形式のstringに変換します
+            /// </summary>
+            /// <returns>stringに変換された分数　不正な場合NaN</returns>
+            public override string ToString()
+            {
+                if (denominator > 0)
+                    return $"{numerator}/{denominator}";
+                else
+                    return "NaN";
+            }
+
+            /// <summary>
+            /// 小数に変換します。
+            /// </summary>
+            /// <returns>分数と同等の小数　不正な場合double.NaN</returns>
+            public double ToDouble()
+            {
+                if (denominator > 0)
+                    return (double)numerator / denominator;
+                else
+                    return double.NaN;
+            }
+
+            /// <summary>
+            /// 累乗根を求めます。
+            /// </summary>
+            /// <param name="result">求めた分数、失敗した場合-1/-1</param>
+            /// <param name="exp">累乗根の次数</param>
+            /// <param name="maxTry">最大挑戦回数(分母と分子がこのexp乗と同じか判定します)</param>
+            /// <returns>変換に成功した場合true、失敗した場合false</returns>
+            public bool TryRdrt(out Fraction result, int exp, int maxTry = 999)
+            {
+                if (denominator < 0)
+                {
+                    result = new Fraction(-1, -1);
+                    return false;
+                }
+                if (denominator == Math.Abs(numerator))
+                {
+                    result = new Fraction(1, numerator / Math.Abs(numerator));//-2/2=-1
+                    return true;
+                }
+
+                long denTmp = long.MinValue, numTmp = long.MinValue;
+                bool denUnOK = true, numUnOK = true;
+
+                if (numerator == 0)//下ではできない(分子0の場合だけ許可)
+                {
+                    numTmp = 0;
+                    numUnOK = false;
+                }
+                for (int i = 1; i <= maxTry && (denUnOK || numUnOK); i++)
+                {
+                    long pow = (long)Math.Pow(i, exp);
+
+                    if (denUnOK)
+                    {
+                        if (pow == denominator)
+                        {
+                            denTmp = i;
+                            denUnOK = false;
+                        }
+                        else if (pow > denominator)
+                            denUnOK = false;
+                    }
+                    if (numUnOK)
+                    {
+                        if (pow == numerator)
+                        {
+                            numTmp = i;
+                            numUnOK = false;
+                        }
+                        else if (pow == -numerator)
+                        {
+                            numTmp = -i;
+                            numUnOK = false;
+                        }
+                        else if (pow > Math.Abs(numerator))
+                            numUnOK = false;
+                    }
+                }
+
+                //Console.WriteLine($"{this} -> denTmp:{denTmp} numTmp:{numTmp}");
+                if (!denUnOK && !numUnOK)
+                {
+                    result = new Fraction(denTmp, numTmp);
+                    return true;
+                }
+                else
+                {
+                    result = new Fraction(-1, -1);
+                    return false;
+                }
             }
         }
     }
