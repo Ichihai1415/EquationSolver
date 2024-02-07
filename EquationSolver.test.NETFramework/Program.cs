@@ -13,12 +13,13 @@ namespace EquationSolver.test.NETFramework
         {
             string showText = "" +
                 "     //////////////////////////////////////\n" +
-                "    ////                        - □ X ////\n" +
-                "   ////    EquationSolver v0.5.1     ////\n" +
+                "    ////                       - ロ X ////\n" +
+                "   ////    EquationSolver v0.5.2     ////\n" +
                 "  ////            by Ichihai1415    ////\n" +
                 " ////                              ////\n" +
                 "//////////////////////////////////////\n" +
             "\nhttps://github.com/Ichihai1415/EquationSolver";
+
             while (showText.Length > 0)
             {
                 Console.Write(showText.First());

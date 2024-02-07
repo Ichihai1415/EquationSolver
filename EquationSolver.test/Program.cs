@@ -1,5 +1,4 @@
-﻿using System.Numerics;
-using static EquationSolver.EquationSolver;
+﻿using static EquationSolver.EquationSolver;
 
 namespace EquationSolver.test
 {
@@ -54,7 +53,7 @@ namespace EquationSolver.test
             Console.WriteLine(Equation2String(a));
             Console.WriteLine(ComplexArray2String(Equat3_Formula(a, true)));
             Console.WriteLine();
-            Console.WriteLine(ComplexArray2String(Equat3_Formula([1,2,3,0], true)));
+            Console.WriteLine(ComplexArray2String(Equat3_Formula([1, 2, 3, 0], true)));
 
             //var b = CreateEquation([1, 2, 3, 4]);
 

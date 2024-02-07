@@ -9,6 +9,11 @@ namespace EquationSolver
     public static class EquationSolver
     {
         /// <summary>
+        /// ライブラリバージョン
+        /// </summary>
+        public static readonly string version = "0.5.2";
+
+        /// <summary>
         /// ルート3
         /// </summary>
         public static readonly double sqrt3 = Math.Sqrt(3);
@@ -389,7 +394,7 @@ namespace EquationSolver
         public long numerator;
 
         /// <summary>
-        /// 分母と分子を指定して初期化します。自動で通分されます。
+        /// 分母と分子を指定して初期化します。
         /// </summary>
         /// <param name="denominator">分母</param>
         /// <param name="numerator">分子</param>
@@ -411,9 +416,17 @@ namespace EquationSolver
         /// <param name="error">判定時の誤差(out)失敗時NaN</param>
         /// <param name="maxDenominator">分母の最大</param>
         /// <param name="toleranceLevel">計算した分数での小数と変換する小数の差の許容範囲</param>
-        public Fraction(double input, out double error, int maxDenominator = 99999, double toleranceLevel = 0.00001)
+        public Fraction(double input, out double error, int maxDenominator = int.MaxValue, double toleranceLevel = 0.00001)
         {
-            for (int d = 2; d <= maxDenominator; d++)//input=1.6,d=2の例を以下に
+            if (input == 0)//0の時(下は/0できないため)
+            {
+                denominator = 1;
+                numerator = 0;
+                error = 0;
+                return;
+            }
+
+            for (int d = 1; d <= maxDenominator; d++)//input=1.6,d=2の例を以下に
             {
                 var inpAbs = Math.Abs(input);
                 var nearD = Math.Max(Math.Round(inpAbs / (1d / d)), 1);//inputを割ると余りが0に近い数字(0以上)//1.6/0.5=>3.2=>3
@@ -426,7 +439,7 @@ namespace EquationSolver
                         numerator = -(int)nearD;
                     else
                         numerator = (int)nearD;
-                    Reduce();
+                    //Reduce();
                     return;
                 }
             }
@@ -497,7 +510,7 @@ namespace EquationSolver
         /// <param name="exp">累乗根の次数</param>
         /// <param name="maxTry">最大挑戦回数(分母と分子がこのexp乗と同じか判定します)</param>
         /// <returns>変換に成功した場合true、失敗した場合false</returns>
-        public bool TryRdrt(out Fraction result, int exp, int maxTry = 20)
+        public bool TryRdrt(out Fraction result, int exp, int maxTry = 999)
         {
             if (denominator < 0)
             {
@@ -513,6 +526,11 @@ namespace EquationSolver
             long denTmp = long.MinValue, numTmp = long.MinValue;
             bool denUnOK = true, numUnOK = true;
 
+            if (numerator == 0)//下ではできない(分子0の場合だけ許可)
+            {
+                numTmp = 0;
+                numUnOK = false;
+            }
             for (int i = 1; i <= maxTry && (denUnOK || numUnOK); i++)
             {
                 long pow = (long)Math.Pow(i, exp);
@@ -545,7 +563,7 @@ namespace EquationSolver
             }
 
             //Console.WriteLine($"{this} -> denTmp:{denTmp} numTmp:{numTmp}");
-            if (denUnOK && numUnOK)
+            if (!denUnOK && !numUnOK)
             {
                 result = new Fraction(denTmp, numTmp);
                 return true;
