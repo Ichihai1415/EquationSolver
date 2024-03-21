@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "EquationSolver.test", "Equa
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EquationSolver.test.NETFramework", "EquationSolver.test.NETFramework\EquationSolver.test.NETFramework.csproj", "{8C509BC0-0421-4F77-AA5C-BB25DF5433EC}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "EquationSolver.SymbolExpansion", "EquationSolver.SymbolExpansion\EquationSolver.SymbolExpansion.csproj", "{BF448006-9D66-4C42-BCF3-351048ACCB8F}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{8C509BC0-0421-4F77-AA5C-BB25DF5433EC}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{8C509BC0-0421-4F77-AA5C-BB25DF5433EC}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{8C509BC0-0421-4F77-AA5C-BB25DF5433EC}.Release|Any CPU.Build.0 = Release|Any CPU
+		{BF448006-9D66-4C42-BCF3-351048ACCB8F}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{BF448006-9D66-4C42-BCF3-351048ACCB8F}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{BF448006-9D66-4C42-BCF3-351048ACCB8F}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{BF448006-9D66-4C42-BCF3-351048ACCB8F}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
