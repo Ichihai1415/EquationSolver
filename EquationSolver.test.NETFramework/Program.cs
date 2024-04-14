@@ -7,6 +7,9 @@ using static EquationSolver.EquationSolver.Command;
 
 namespace EquationSolver.test.NETFramework
 {
+    /// <summary>
+    /// .NET Frameworkで実行
+    /// </summary>
     internal class Program
     {
         public static readonly ConsoleColor c = Console.ForegroundColor;
@@ -252,8 +255,6 @@ namespace EquationSolver.test.NETFramework
                 default:
                     throw new Exception($"値が不正です。{degree}次方程式は対応していません。");
             }
-
-
         }
     }
 }

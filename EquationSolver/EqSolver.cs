@@ -7,6 +7,9 @@ using System.Threading;
 
 namespace EquationSolver
 {
+    /// <summary>
+    /// ライブラリのメインクラスです。
+    /// </summary>
     public static class EquationSolver
     {
         /// <summary>
@@ -26,10 +29,13 @@ namespace EquationSolver
         /// </summary>
         public static readonly Complex omegaM = new Complex(-1, -sqrt3) / 2;
 
+        /// <summary>
+        /// ライブラリ情報アニメーションで表示するテキスト
+        /// </summary>
         public const string showInfoText = "\n" +
             "       //////////////////////////////////////\n" +
             "      ////                       - ロ X ////\n" +
-            "     ////    EquationSolver v0.5.2     ////\n" +
+            "     ////    EquationSolver v0.5.3     ////\n" +
             "    ////            by Ichihai1415    ////\n" +
             "   ////                              ////\n" +
             "  //////////////////////////////////////\n" +
@@ -159,75 +165,142 @@ namespace EquationSolver
         }
 
         /// <summary>
-        /// doubleの組み合わせ(ここでは定数の組み合わせ([[1,2],[1,3],[2,3]]等))を作ります。
+        /// 解から方程式の係数(文字列のまま)の配列を生成します。object[]で指定できます(内部でToString()されます)。
         /// </summary>
-        /// <remarks>ここではx=1,2,3 => (x-1)(x-2)(x-3)で、[1,2]などとなるため注意してください</remarks>
-        /// <param name="nums">組み合わせを作る配列(ここでは解の配列)</param>
-        /// <param name="r">選ぶ個数</param>
-        /// <returns>doubleの組み合わせ</returns>
+        /// <param name="roots">解の配列(重解でもその分追加)</param>
+        /// <returns>方程式の係数の配列(次数が大きい順)</returns>
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
-        public static List<List<double>> CreateCombinations(double[] nums, int r)
+        public static string[] CreateEquation_st(object[] roots)
         {
-            if (r < 0 || nums.Length < r)//num.Len>=r>=0
+            if (!roots.Any())
+                throw new ArgumentException("引数がnullまたは個数が不足しています。", nameof(roots));
+
+            var n = roots.Length;//解の数
+            var coefficients = new string[n + 1];//係数(最高次数~定数項)
+            coefficients[0] = "";
+
+            for (int i = 1; i <= n; i++)//x^(n-i)の係数を求める
+            {
+                var coefComb = CreateCombinations(roots, i).Select(x => x.Select(y => y.ToString()));//係数ごとに定数部分の組み合わせを作る
+                if (string.IsNullOrEmpty(coefficients[i]))
+                    coefficients[i] += coefComb.ToArray()[0].Count() % 2 == 0 ? "+(+" : "-(+";
+                foreach (var combi_tmp in coefComb)
+                {
+                    coefficients[i] += "+";
+                    foreach (var value in combi_tmp)
+                        coefficients[i] += value;
+                }
+                coefficients[i] += ")";
+                coefficients[i] = coefficients[i].Replace("++", "");
+            }
+            return coefficients;
+        }
+
+        /// <summary>
+        /// 組み合わせを作ります。
+        /// </summary>
+        /// <example><code>
+        /// //a,b,cの中から2つ選ぶ
+        /// CreateCombinations(new string[]{ "a", "b", "c" }, 2);
+        /// //[[a,b],[a,c],[b,c]]
+        /// </code></example>
+        /// <param name="srcArray">組み合わせを作る配列</param>
+        /// <param name="r">選ぶ個数</param>
+        /// <returns>組み合わせの2次元配列(0:すべての組み合わせの配列,1:1つの組み合わせの配列)</returns>
+        /// <exception cref="ArgumentException">引数が不正な場合</exception>
+        public static List<List<T>> CreateCombinations<T>(T[] srcArray, int r)
+        {
+            if (r < 0 || srcArray.Length < r)//num.Len>=r>=0
                 throw new ArgumentException("引数が不正です。", nameof(r));
-            var combinations = new List<List<double>>();
-            CreateCombinations(ref combinations, nums, r);
+            var combinations = new List<List<T>>();
+            CreateCombinations(ref combinations, srcArray, r);
             return combinations;
         }
 
         /// <summary>
-        /// doubleの組み合わせを作成します。
+        /// 組み合わせを作成します。
         /// </summary>
-        /// <remarks>内部参照用です。こちらを指定する必要はありません。</remarks>
-        /// <param name="result">doubleの組み合わせ(参照)</param>
-        /// <param name="nums">組み合わせを作る配列</param>
-        /// <param name="r_remain">参照する残りの個数</param>
-        /// <param name="start">参照する始点</param>
-        /// <param name="combinationTmp">doubleの組み合わせの内部一時保存([1,2]の部分)</param>
+        /// <remarks>内部参照用です。こちらは指定しないでください。</remarks>
+        /// <param name="result">組み合わせ(参照)</param>
+        /// <param name="srcArray">組み合わせを作る配列</param>
+        /// <param name="r_remain">初回呼び出し時選ぶ個数、再帰呼び出し時参照する残りの個数</param>
+        /// <param name="start">参照する始点(再帰呼び出し時のみ)</param>
+        /// <param name="combinationTmp">組み合わせの内部一時保存(再帰呼び出し時のみ)</param>
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
         /// <exception cref="ArgumentNullException">引数が不正な場合</exception>
-        public static void CreateCombinations(ref List<List<double>> result, double[] nums, int r_remain, int start = 0, List<double> combinationTmp = null)
+        public static void CreateCombinations<T>(ref List<List<T>> result, T[] srcArray, int r_remain, int start = 0, List<T> combinationTmp = null)
         {
             if (result == null)
                 throw new ArgumentNullException(nameof(result));
-            if (!nums.Any())
-                throw new ArgumentException("引数がnullまたは個数が不足しています。", nameof(nums));
+            if (!srcArray.Any())
+                throw new ArgumentException("引数がnullまたは個数が不足しています。", nameof(srcArray));
             if (r_remain < 0)
                 throw new ArgumentException("引数が不正です。", nameof(r_remain));
             if (start < 0)
                 throw new ArgumentException("引数が不正です。", nameof(start));
-            if (combinationTmp == null)
-                combinationTmp = new List<double>();
+            if (combinationTmp == null)//初回呼び出し時
+                combinationTmp = new List<T>();
 
-            if (r_remain == 0)//r個の要素を選び終わった時
+            if (r_remain == 0)//選び終わった時
             {
-                result.Add(new List<double>(combinationTmp));
+                result.Add(new List<T>(combinationTmp));
                 return;
             }
 
-            for (int i = start; i <= nums.Length - r_remain; i++)
+            for (int i = start; i <= srcArray.Length - r_remain; i++)
             {
-                combinationTmp.Add(nums[i]);
-                CreateCombinations(ref result, nums, r_remain - 1, i + 1, combinationTmp);//残りの回数、インデックスを次のものになるようにして再帰的に呼び出し
-                combinationTmp.RemoveAt(combinationTmp.Count - 1);
+                combinationTmp.Add(srcArray[i]);//最初のやつ([a,b,c],2のとき[a,b])
+                CreateCombinations(ref result, srcArray, r_remain - 1, i + 1, combinationTmp);//残りの回数、インデックスを次のものになるようにして再帰的に呼び出し
+                combinationTmp.RemoveAt(combinationTmp.Count - 1);//余計なものも付くから削除
             }
         }
 
         /// <summary>
         /// nCr(組み合わせの総数)を計算します。
         /// </summary>
-        /// <remarks>nPrがlong.MaxValueを超える場合計算不可です。</remarks>
+        /// <remarks>nPr((n < r * 2)のときnP(n-r))がlong.MaxValueを超える場合、値は正常値ではなくなります。29C14までは可能です。</remarks>
         /// <param name="n">n個から選ぶ</param>
         /// <param name="r">r個選ぶ</param>
         /// <returns>組み合わせの総数</returns>
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
-        public static long NCR(int n, int r)
+        public static long NCR_long(int n, int r)//ulongにすればちょっと増える　.NET7以降ならInt128/UInt128使える(そこまでは普通不要)
         {
-            if (n < 1)
+            if (n < 0)
                 throw new ArgumentException("引数が不正です。", nameof(n));
-            if (r < 1 || n < r)
+            if (r < 0 || n < r)
                 throw new ArgumentException("引数が不正です。", nameof(r));
+            if (n == 0 || r == 0)
+                return 1;
+            if (n < r * 2)
+                r = n - r;//nCr = nC(n-r)
             long a = 1, b = 1;
+            for (int i = 0; i < r; i++)
+            {
+                a *= n - i;
+                b *= r - i;
+            }
+            return a / b;
+        }
+
+        /// <summary>
+        /// nCr(組み合わせの総数)を計算します。
+        /// </summary>
+        /// <remarks>nPr((n < r * 2)のときnP(n-r))がdouble.MaxValueを超える場合、値は正常値ではなくなります。大きい値の場合誤差が発生する可能性があります。</remarks>
+        /// <param name="n">n個から選ぶ</param>
+        /// <param name="r">r個選ぶ</param>
+        /// <returns>組み合わせの総数</returns>
+        /// <exception cref="ArgumentException">引数が不正な場合</exception>
+        public static double NCR_double(int n, int r)
+        {
+            if (n < 0)
+                throw new ArgumentException("引数が不正です。", nameof(n));
+            if (r < 0 || n < r)
+                throw new ArgumentException("引数が不正です。", nameof(r));
+            if (n == 0 || r == 0)
+                return 1;
+            if (n < r * 2)
+                r = n - r;//nCr = nC(n-r)
+            double a = 1, b = 1;
             for (int i = 0; i < r; i++)
             {
                 a *= n - i;
@@ -435,6 +508,7 @@ namespace EquationSolver
             //Console.WriteLine(a);
             return a;
         }
+
         /// <summary>
         /// 簡単な分数の構造体
         /// </summary>
