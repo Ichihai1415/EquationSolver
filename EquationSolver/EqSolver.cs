@@ -19,7 +19,7 @@ namespace EquationSolver
         /// <summary>
         /// 三分の一
         /// </summary>
-        public static readonly double oneThird = 1d / 3d;
+        public static readonly double oneThird = 1d / 3;
         /// <summary>
         /// 1の立方根(+√3i)
         /// </summary>
@@ -35,7 +35,7 @@ namespace EquationSolver
         public const string showInfoText = "\n" +
             "       //////////////////////////////////////\n" +
             "      ////                       - ロ X ////\n" +
-            "     ////    EquationSolver v0.5.3     ////\n" +
+            "     ////    EquationSolver v0.5.4     ////\n" +
             "    ////            by Ichihai1415    ////\n" +
             "   ////                              ////\n" +
             "  //////////////////////////////////////\n" +
@@ -339,8 +339,8 @@ namespace EquationSolver
         /// <returns>変換された文字列</returns>
         public static string Complex2String(Complex input, int digits = -1)
         {
-            var r = digits == -1 ? input.Real : Math.Round(input.Real, digits, MidpointRounding.AwayFromZero);
-            var i = digits == -1 ? input.Imaginary : Math.Round(input.Imaginary, digits, MidpointRounding.AwayFromZero);
+            var r = digits == -1 ? input.Real : Math.Round(input.Real, digits - 1, MidpointRounding.AwayFromZero);
+            var i = digits == -1 ? input.Imaginary : Math.Round(input.Imaginary, digits - 1, MidpointRounding.AwayFromZero);
             if (r == -0)
                 r = 0;
             if (i == -0)
@@ -349,8 +349,10 @@ namespace EquationSolver
                 return r.ToString();
             else if (i > 0)
                 return r.ToString() + "+" + i.ToString() + "i";
-            else
+            else if (i <= 0)
                 return r.ToString() + i.ToString() + "i";
+            else//NaN等?
+                return "<" + r.ToString() + "-" + i.ToString() + ">";
         }
 
         /// <summary>
@@ -372,9 +374,9 @@ namespace EquationSolver
 
             if (outputCalInfo)
             {
-                Console.WriteLine("----------計算途中情報開始----------");
-                Console.WriteLine($"tmp1:{tmp1}");
-                Console.WriteLine("----------計算途中情報終了----------");
+                Console.WriteLine("----------計算途中情報開始----------@Equat2_Formula");
+                Console.WriteLine($"tmp1 : {tmp1}");
+                Console.WriteLine("----------計算途中情報終了----------@Equat2_Formula");
             }
             var x1 = (-b + tmp1) / (2 * a);
             var x2 = (-b - tmp1) / (2 * a);
@@ -384,12 +386,44 @@ namespace EquationSolver
         /// <summary>
         /// 三次方程式の解を解の公式(独自算出)より求めます。
         /// </summary>
-        /// <remarks>ミスがある可能性があります。</remarks>
+        /// <remarks></remarks>
         /// <param name="coefficients">係数の配列</param>
-        /// <param name="outputCalInfo">計算途中情報を出力するか</param>
+        /// <param name="outputCalInfo">計算途中情報を表示するか</param>
         /// <returns>解の複素数配列</returns>
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
         public static Complex[] Equat3_Formula(double[] coefficients, bool outputCalInfo = false)
+        {
+            string infoText = null;
+            return Equat3_Formula(coefficients, ref infoText, outputCalInfo);
+        }
+
+        /// <summary>
+        /// 三次方程式の解を解の公式(独自算出)より求めます。
+        /// </summary>
+        /// <remarks></remarks>
+        /// <param name="coefficients">係数の配列</param>
+        /// <param name="outputCalInfo">計算途中情報を表示するか</param>
+        /// <param name="infoText">計算途中情報(保存用)</param>
+        /// <returns>解の複素数配列</returns>
+        /// <exception cref="ArgumentException">引数が不正な場合</exception>
+        public static Complex[] Equat3_Formula(double[] coefficients, bool outputCalInfo, out string infoText)
+        {
+            string infoText_ = string.Empty;
+            var ret = Equat3_Formula(coefficients, ref infoText_, outputCalInfo);
+            infoText = infoText_;
+            return ret;
+        }
+
+        /// <summary>
+        /// 三次方程式の解を解の公式(独自算出)より求めます。
+        /// </summary>
+        /// <remarks><paramref name="infoText"/>の出力有無判定用です。<c>Equat3_Formula(double[] coefficients, bool outputCalInfo, out string infoText)</c>を使用してください。</remarks>
+        /// <param name="coefficients">係数の配列</param>
+        /// <param name="outputCalInfo">計算途中情報を表示するか</param>
+        /// <param name="infoText">計算途中情報(保存用)(必要ない場合null)</param>
+        /// <returns>解の複素数配列</returns>
+        /// <exception cref="ArgumentException">引数が不正な場合</exception>
+        public static Complex[] Equat3_Formula(double[] coefficients, ref string infoText, bool outputCalInfo)//CS0663回避用にずらす必要
         {
             if (coefficients.Length != 4)
                 throw new ArgumentException("引数の個数が不正です。", nameof(coefficients));
@@ -399,35 +433,102 @@ namespace EquationSolver
 
             var tmp1 = (-2 * b * b * b + 9 * a * b * c - 27 * a * a * d) / (54 * a * a * a);
             var tmp2 = Complex.Pow(3 * (27 * a * a * d * d - 18 * a * b * c * d + 4 * a * c * c * c + 4 * b * b * b * d - b * b * c * c), 0.5) / (18 * a * a);
-            var tmp12p = ComplexCbrt(tmp1 + tmp2);
-            var tmp12m = ComplexCbrt(tmp1 - tmp2);
+            var tmp12p = ComplexCbrt_abs(tmp1 + tmp2);
+            var tmp12m = ComplexCbrt_abs(tmp1 - tmp2);
             var tmp3 = b / (3 * a);
 
             if (outputCalInfo)
             {
                 Console.WriteLine("----------計算途中情報開始----------@Equat3_Formula");
-                Console.WriteLine($"tmp1:{tmp1}");
-                Console.WriteLine($"tmp2:{tmp2}");
-                Console.WriteLine($"tmp12p:{tmp12p}");
-                Console.WriteLine($"tmp12m:{tmp12m}");
-                Console.WriteLine($"tmp3:{tmp3}");
+                Console.WriteLine($"tmp1   : {tmp1}");
+                Console.WriteLine($"tmp2   : {tmp2}");
+                Console.WriteLine($"tmp12p : {tmp12p}");
+                Console.WriteLine($"tmp12m : {tmp12m}");
+                Console.WriteLine($"tmp3   : {tmp3}");
                 Console.WriteLine("----------計算途中情報終了----------@Equat3_Formula");
             }
             var x1 = tmp12p + tmp12m - tmp3;
             var x2 = omegaP * tmp12p + omegaM * tmp12m - tmp3;
             var x3 = omegaM * tmp12p + omegaP * tmp12m - tmp3;
+
+            if (infoText != null)//表示はしないが出力はすることもできるように
+            {
+                var stb = new StringBuilder();
+                stb.AppendLine("---------------START---------------");
+                stb.Append("coefficients : ");
+                stb.AppendLine(string.Join(",", coefficients));
+                stb.Append("tmp1         : ");
+                stb.AppendLine(tmp1.ToString());
+                stb.Append("tmp2         : ");
+                stb.AppendLine(tmp2.ToString());
+                stb.Append("tmp12p       : ");
+                stb.AppendLine(tmp12p.ToString());
+                stb.Append("tmp12m       : ");
+                stb.AppendLine(tmp12m.ToString());
+                stb.Append("tmp3         : ");
+                stb.AppendLine(tmp3.ToString());
+                stb.Append("omegaP * tmp12p : ");
+                stb.AppendLine((omegaP * tmp12p).ToString());
+                stb.Append("omegaM * tmp12m : ");
+                stb.AppendLine((omegaM * tmp12m).ToString());
+                stb.Append("omegaM * tmp12p : ");
+                stb.AppendLine((omegaM * tmp12p).ToString());
+                stb.Append("omegaP * tmp12m : ");
+                stb.AppendLine((omegaP * tmp12m).ToString());
+                stb.Append("x1 : ");
+                stb.AppendLine(x1.ToString());
+                stb.Append("x2 : ");
+                stb.AppendLine(x2.ToString());
+                stb.Append("x3 : ");
+                stb.AppendLine(x3.ToString());
+                stb.AppendLine("----------------END----------------");
+                infoText = stb.ToString();
+                stb.Clear();
+            }
             return new Complex[] { x1, x2, x3 };
         }
 
         /// <summary>
-        /// 四次方程式の解を解の公式(独自算出)より求めます。
+        /// 四次方程式の解を解の公式(独自算出)より求めます。解をα,β,γ,δ (α≧β≧γ≧δ)とするとβ=γかつα-β=γ-δのとき導出できません。
         /// </summary>
         /// <remarks>ミスがある可能性があります。</remarks>
         /// <param name="coefficients">係数の配列</param>
-        /// <param name="outputCalInfo">計算途中情報を出力するか</param>
+        /// <param name="outputCalInfo">計算途中情報を表示するか</param>
         /// <returns>解の複素数配列</returns>
         /// <exception cref="ArgumentException">引数が不正な場合</exception>
         public static Complex[] Equat4_Formula(double[] coefficients, bool outputCalInfo = false)
+        {
+            string infoText = null;
+            return Equat4_Formula(coefficients, ref infoText, outputCalInfo);
+        }
+
+        /// <summary>
+        /// 四次方程式の解を解の公式(独自算出)より求めます。解をα,β,γ,δ (α≧β≧γ≧δ)とするとβ=γかつα-β=γ-δのとき導出できません。
+        /// </summary>
+        /// <remarks>ミスがある可能性があります。</remarks>
+        /// <param name="coefficients">係数の配列</param>
+        /// <param name="outputCalInfo">計算途中情報を表示するか</param>
+        /// <param name="infoText">計算途中情報(保存用)</param>
+        /// <returns>解の複素数配列</returns>
+        /// <exception cref="ArgumentException">引数が不正な場合</exception>
+        public static Complex[] Equat4_Formula(double[] coefficients, bool outputCalInfo, out string infoText)
+        {
+            string infoText_ = string.Empty;
+            var ret = Equat4_Formula(coefficients, ref infoText_, outputCalInfo);
+            infoText = infoText_;
+            return ret;
+        }
+
+        /// <summary>
+        /// 四次方程式の解を解の公式(独自算出)より求めます。解をα,β,γ,δ (α≧β≧γ≧δ)とするとβ=γかつα-β=γ-δのとき導出できません。
+        /// </summary>
+        /// <remarks>ミスがある可能性があります。<paramref name="infoText"/>の出力有無判定用です。<c>Equat4_Formula(double[] coefficients, bool outputCalInfo, out string infoText)</c>を使用してください。</remarks>
+        /// <param name="coefficients">係数の配列</param>
+        /// <param name="outputCalInfo">計算途中情報を表示するか</param>
+        /// <param name="infoText">計算途中情報(保存用)(必要ない場合null)</param>
+        /// <returns>解の複素数配列</returns>
+        /// <exception cref="ArgumentException">引数が不正な場合</exception>
+        public static Complex[] Equat4_Formula(double[] coefficients, ref string infoText, bool outputCalInfo)//CS0663回避用にずらす必要
         {
             if (coefficients.Length != 5)
                 throw new ArgumentException("引数の個数が不正です。", nameof(coefficients));
@@ -435,7 +536,7 @@ namespace EquationSolver
             if (a == 0)
                 throw new ArgumentException("引数が不正です。", nameof(a), new Exception("最高次数の係数が0になっています。"));
 
-            var tmp0 = (3 * b * b - 8 * a * c) / (12 * a * a);//12a^2で割る方
+            var tmp0 = (3 * b * b - 8 * a * c) / (12 * a * a);
             var tmp1 = (2 * c * c * c - 72 * a * c * e + 27 * b * b * e + 27 * a * d * d - 9 * b * c * d) / (54 * a * a * a);
             var tmp2 = Complex.Pow(3 * (
                 -256 * a * a * a * e * e * e + 192 * a * a * b * d * e * e + 128 * a * a * c * c * e * e - 144 * a * b * b * c * e * e
@@ -443,8 +544,8 @@ namespace EquationSolver
                 - 18 * b * b * b * c * d * e - 16 * a * c * c * c * c * e + 4 * b * b * c * c * c * e + 27 * a * a * d * d * d * d
                 - 18 * a * b * c * d * d * d + 4 * b * b * b * d * d * d + 4 * a * c * c * c * d * d - b * b * c * c * d * d
                 ), 0.5) / (18 * a * a * a);
-            var tmp12p = ComplexCbrt(tmp1 + tmp2);
-            var tmp12m = ComplexCbrt(tmp1 - tmp2);
+            var tmp12p = ComplexCbrt_abs(tmp1 + tmp2);
+            var tmp12m = ComplexCbrt_abs(tmp1 - tmp2);
             var tmp1212p = tmp12p + tmp12m;
             var tmp01212p_sq = Complex.Pow(tmp0 + tmp1212p, 0.5);
             var tmp01212p_msq = Complex.Pow(tmp0 + tmp1212p, -0.5);
@@ -453,45 +554,116 @@ namespace EquationSolver
 
             if (outputCalInfo)
             {
-                Console.WriteLine("----------計算途中情報開始----------");
-                Console.WriteLine($"tmp0:{tmp0}");
-                Console.WriteLine($"tmp1:{tmp1}");
-                Console.WriteLine($"tmp2:{tmp2}");
-                Console.WriteLine($"tmp12p:{tmp12p}");
-                Console.WriteLine($"tmp12m:{tmp12m}");
-                Console.WriteLine($"tmp1212p:{tmp1212p}");
-                Console.WriteLine($"tmp01212p_sq:{tmp01212p_sq}");
-                Console.WriteLine($"tmp01212p_msq:{tmp01212p_msq}");
-                Console.WriteLine($"tmp3:{tmp3}");
-                Console.WriteLine($"tmp4:{tmp4}");
-                Console.WriteLine("----------計算途中情報終了----------");
+                Console.WriteLine("---------------計算途中情報開始---------------@Equat4_Formula");
+                Console.Write("tmp0          : ");
+                Console.WriteLine(tmp0);
+                Console.Write("tmp1          : ");
+                Console.WriteLine(tmp1);
+                Console.Write("tmp2          : ");
+                Console.WriteLine(tmp2);
+                Console.Write("tmp12p        : ");
+                Console.WriteLine(tmp12p);
+                Console.Write("tmp12m        : ");
+                Console.WriteLine(tmp12m);
+                Console.Write("tmp1212p      : ");
+                Console.WriteLine(tmp1212p);
+                Console.Write("tmp01212p_sq  : ");
+                Console.WriteLine(tmp01212p_sq);
+                Console.Write("tmp01212p_msq : ");
+                Console.WriteLine(tmp01212p_msq);
+                Console.Write("tmp3          : ");
+                Console.WriteLine(tmp3);
+                Console.Write("tmp4          : ");
+                Console.WriteLine(tmp4);
+                Console.WriteLine("---------------計算途中情報終了---------------@Equat4_Formula");
             }
             var x1 = 0.5 * (-tmp01212p_sq + Complex.Pow(tmp0 * 2 - tmp1212p + tmp3 * tmp01212p_msq, 0.5) - tmp4);
             var x2 = 0.5 * (-tmp01212p_sq - Complex.Pow(tmp0 * 2 - tmp1212p + tmp3 * tmp01212p_msq, 0.5) - tmp4);
             var x3 = 0.5 * (tmp01212p_sq + Complex.Pow(tmp0 * 2 - tmp1212p - tmp3 * tmp01212p_msq, 0.5) - tmp4);
             var x4 = 0.5 * (tmp01212p_sq - Complex.Pow(tmp0 * 2 - tmp1212p - tmp3 * tmp01212p_msq, 0.5) - tmp4);
+
+            if (infoText != null)//表示はしないが出力はすることもできるように
+            {
+                var stb = new StringBuilder();
+                stb.AppendLine("---------------START---------------");
+                stb.Append("coefficients  : ");
+                stb.AppendLine(string.Join(",", coefficients));
+                stb.Append("tmp0          : ");
+                stb.AppendLine(tmp0.ToString());
+                stb.Append("tmp1          : ");
+                stb.AppendLine(tmp1.ToString());
+                stb.Append("tmp2          : ");
+                stb.AppendLine(tmp2.ToString());
+                stb.Append("tmp12p        : ");
+                stb.AppendLine(tmp12p.ToString());
+                stb.Append("tmp12m        : ");
+                stb.AppendLine(tmp12m.ToString());
+                stb.Append("tmp1212p      : ");
+                stb.AppendLine(tmp1212p.ToString());
+                stb.Append("tmp01212p_sq  : ");
+                stb.AppendLine(tmp01212p_sq.ToString());
+                stb.Append("tmp01212p_msq : ");
+                stb.AppendLine(tmp01212p_msq.ToString());
+                stb.Append("tmp3          : ");
+                stb.AppendLine(tmp3.ToString());
+                stb.Append("tmp4          : ");
+                stb.AppendLine(tmp4.ToString());
+                stb.Append("Complex.Pow(tmp0 * 2 - tmp1212p + tmp3 * tmp01212p_msq, 0.5) : ");
+                stb.AppendLine(Complex.Pow(tmp0 * 2 - tmp1212p + tmp3 * tmp01212p_msq, 0.5).ToString());
+                stb.Append("Complex.Pow(tmp0 * 2 - tmp1212p - tmp3 * tmp01212p_msq, 0.5) : ");
+                stb.AppendLine(Complex.Pow(tmp0 * 2 - tmp1212p - tmp3 * tmp01212p_msq, 0.5).ToString());
+                stb.Append("x1 : ");
+                stb.AppendLine(x1.ToString());
+                stb.Append("x2 : ");
+                stb.AppendLine(x2.ToString());
+                stb.Append("x3 : ");
+                stb.AppendLine(x3.ToString());
+                stb.Append("x4 : ");
+                stb.AppendLine(x4.ToString());
+                stb.AppendLine("----------------END----------------");
+                infoText = stb.ToString();
+                stb.Clear();
+            }
             return new Complex[] { x1, x2, x3, x4 };
         }
 
         /// <summary>
-        /// Complexの三乗根を求めます。
+        /// Complexの三乗根を求めます(分数化)。
         /// </summary>
-        /// <remarks>Complex.Powで複素数になる問題を回避するものです。</remarks>
+        /// <remarks>Complex.Powで複素数になる問題を回避するものです。分数化は解が小数でも基本問題ないようです。</remarks>
         /// <param name="input">値</param>
         /// <returns>三乗根(分数化してできなければComplex.Powの方)</returns>
-        public static Complex ComplexCbrt(Complex input)
+        public static Complex ComplexCbrt_fra(Complex input)
         {
             //Console.WriteLine(input);
+            //Console.WriteLine("従来法:" + Complex.Pow(input, oneThird));
             if (input.Imaginary == 0)
             {
                 var fra = new Fraction(input.Real, out double err);
                 //Console.WriteLine($"{fra} err:{err}");
-                bool convAble = fra.TryRdrt(out Fraction fraCbrt, 3);
+                var convAble = fra.TryRdrt(out Fraction fraCbrt, 3);
                 //Console.WriteLine($"cbrt:{convAble} val:{fraCbrt}");
                 if (convAble)
                     return new Complex(fraCbrt.ToDouble(), 0);
             }
             return Complex.Pow(input, oneThird);
+        }
+
+        /// <summary>
+        /// Complexの三乗根を求めます(負の場合一度正に)。
+        /// </summary>
+        /// <remarks>Complex.Powで複素数になる問題を回避するものです。</remarks>
+        /// <param name="input">値</param>
+        /// <param name="acceptableRange">実数と判定する虚部の許容範囲</param>
+        /// <returns>三乗根(実数でなければComplex.Powの方)</returns>
+        public static Complex ComplexCbrt_abs(Complex input, double acceptableRange = 1e-5)//こっち使う
+        {
+            //Console.WriteLine(input);
+            //Console.WriteLine("従来法:" + Complex.Pow(input, oneThird));
+            if (Math.Abs(input.Imaginary) <= acceptableRange)
+                return input.Real < 0 ? -Complex.Pow(-input, oneThird) : Complex.Pow(input, oneThird);
+            else
+                return Complex.Pow(input, oneThird);
         }
 
         /// <summary>
@@ -522,7 +694,13 @@ namespace EquationSolver
             /// 分子
             /// </summary>
             public long numerator;
+            /*
+            public static Fraction operator +(Fraction a, Fraction b)
+            {
 
+
+            }
+            */
             /// <summary>
             /// 分母と分子を指定して初期化します。
             /// </summary>
@@ -545,8 +723,8 @@ namespace EquationSolver
             /// <param name="input">変換する小数</param>
             /// <param name="error">判定時の誤差(out)失敗時NaN</param>
             /// <param name="maxDenominator">分母の最大</param>
-            /// <param name="toleranceLevel">計算した分数での小数と変換する小数の差の許容範囲</param>
-            public Fraction(double input, out double error, int maxDenominator = int.MaxValue, double toleranceLevel = 0.00001)
+            /// <param name="acceptableRange">計算した分数での小数と変換する小数の差の許容範囲</param>
+            public Fraction(double input, out double error, int maxDenominator = int.MaxValue, double acceptableRange = 1e-5)
             {
                 if (input == 0)//0の時(下は/0できないため)
                 {
@@ -562,7 +740,7 @@ namespace EquationSolver
                     var nearD = Math.Max(Math.Round(inpAbs / (1d / d)), 1);//inputを割ると余りが0に近い数字(0以上)//1.6/0.5=>3.2=>3
                                                                            //Console.WriteLine($"{input}/{d}->{nearD} {Math.Abs(inpAbs - (nearD / d))}");//動作確認用
                     error = inpAbs - (nearD / d);
-                    if (Math.Abs(error) <= toleranceLevel)//1.6-3/2=>0.1=>false
+                    if (Math.Abs(error) <= acceptableRange)//1.6-3/2=>0.1=>false
                     {
                         denominator = d;
                         if (input < 0)
@@ -577,6 +755,8 @@ namespace EquationSolver
                 denominator = -1;
                 numerator = -1;
             }
+
+
 
             /// <summary>
             /// 通分します。
