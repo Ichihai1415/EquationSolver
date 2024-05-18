@@ -454,7 +454,6 @@ namespace EquationSolver
             if (infoText != null)//表示はしないが出力はすることもできるように
             {
                 var stb = new StringBuilder();
-                stb.AppendLine("---------------START---------------");
                 stb.Append("coefficients : ");
                 stb.AppendLine(string.Join(",", coefficients));
                 stb.Append("tmp1         : ");
@@ -481,7 +480,6 @@ namespace EquationSolver
                 stb.AppendLine(x2.ToString());
                 stb.Append("x3 : ");
                 stb.AppendLine(x3.ToString());
-                stb.AppendLine("----------------END----------------");
                 infoText = stb.ToString();
                 stb.Clear();
             }
@@ -555,6 +553,7 @@ namespace EquationSolver
             if (outputCalInfo)
             {
                 Console.WriteLine("---------------計算途中情報開始---------------@Equat4_Formula");
+                Console.WriteLine("注意:一部の場合正確な値が出ないことがあります。");
                 Console.Write("tmp0          : ");
                 Console.WriteLine(tmp0);
                 Console.Write("tmp1          : ");
@@ -585,7 +584,6 @@ namespace EquationSolver
             if (infoText != null)//表示はしないが出力はすることもできるように
             {
                 var stb = new StringBuilder();
-                stb.AppendLine("---------------START---------------");
                 stb.Append("coefficients  : ");
                 stb.AppendLine(string.Join(",", coefficients));
                 stb.Append("tmp0          : ");
@@ -620,7 +618,6 @@ namespace EquationSolver
                 stb.AppendLine(x3.ToString());
                 stb.Append("x4 : ");
                 stb.AppendLine(x4.ToString());
-                stb.AppendLine("----------------END----------------");
                 infoText = stb.ToString();
                 stb.Clear();
             }
